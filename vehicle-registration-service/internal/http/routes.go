@@ -7,5 +7,5 @@ import (
 )
 
 func MapRoutes(httpGroup *echo.Group, h vr.Handlers) {
-	httpGroup.GET("/vehicleinfo/:licenseNumber", h.GetVehicleInfo())
+	httpGroup.GET("vehicleinfo/:licenseNumber", h.GetVehicleInfo())
 }
