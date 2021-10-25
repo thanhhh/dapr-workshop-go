@@ -1,9 +1,9 @@
 package repositories
 
 import (
+	"dapr-workshop-go/pkg/errors"
 	models "dapr-workshop-go/traffic-control-service/internal/models"
 	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
-	"dapr-workshop-go/traffic-control-service/pkg/errors"
 )
 
 type inmemoryRepository struct {

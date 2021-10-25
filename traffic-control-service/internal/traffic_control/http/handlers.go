@@ -2,12 +2,12 @@ package http
 
 import (
 	"bytes"
-	"dapr-workshop-go/traffic-control-service/config"
+	"dapr-workshop-go/pkg/config"
+	"dapr-workshop-go/pkg/logger"
+	"dapr-workshop-go/pkg/utils"
 	"dapr-workshop-go/traffic-control-service/internal/events"
 	"dapr-workshop-go/traffic-control-service/internal/models"
 	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
-	"dapr-workshop-go/traffic-control-service/pkg/logger"
-	"dapr-workshop-go/traffic-control-service/pkg/utils"
 	"encoding/json"
 	"net/http"
 

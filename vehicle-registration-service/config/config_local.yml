@@ -1,6 +1,6 @@
 server:
   AppVersion: 1.0.0
-  Port: :6000
+  Port: :6002
   Mode: Development
   JwtSecretKey: secretkey
   CookieName: jwt-token

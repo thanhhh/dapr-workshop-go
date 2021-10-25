@@ -1,60 +1,31 @@
 package server
 
 import (
-	"context"
-	"dapr-workshop-go/traffic-control-service/config"
-	"dapr-workshop-go/traffic-control-service/pkg/logger"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"github.com/labstack/echo/v4"
+
+	"dapr-workshop-go/pkg/config"
+	"dapr-workshop-go/pkg/logger"
+	"dapr-workshop-go/pkg/server"
+	tcHttp "dapr-workshop-go/traffic-control-service/internal/traffic_control/http"
+	tcRepositories "dapr-workshop-go/traffic-control-service/internal/traffic_control/repositories"
+	tcServices "dapr-workshop-go/traffic-control-service/internal/traffic_control/services"
 )
 
-const (
-	maxHeaderBytes = 1 << 20
-	ctxTimeout     = 5
-)
-
-type Server struct {
+type trafficControlServer struct {
 	echo   *echo.Echo
 	cfg    *config.Config
 	logger logger.Logger
 }
 
-func NewServer(cfg *config.Config, logger logger.Logger) *Server {
-	return &Server{echo: echo.New(), cfg: cfg, logger: logger}
+func NewServerHandler(echo *echo.Echo, cfg *config.Config, logger logger.Logger) server.ServerHandlers {
+	return &trafficControlServer{echo: echo, cfg: cfg, logger: logger}
 }
 
-func (s *Server) Run() error {
-	server := &http.Server{
-		Addr:           s.cfg.Server.Port,
-		ReadTimeout:    time.Second * time.Duration(s.cfg.Server.ReadTimeout),
-		WriteTimeout:   time.Second * time.Duration(s.cfg.Server.WriteTimeout),
-		MaxHeaderBytes: maxHeaderBytes,
-	}
-
-	go func() {
-		s.logger.Infof("Server is listening on PORT: %s", s.cfg.Server.Port)
-		if err := s.echo.StartServer(server); err != nil {
-			s.logger.Fatalf("Error starting Server: ", err)
-		}
-	}()
-
-	if err := s.MapHandlers(s.echo); err != nil {
-		return err
-	}
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-
-	<-quit
-
-	ctx, shutdown := context.WithTimeout(context.Background(), ctxTimeout*time.Second)
-	defer shutdown()
-
-	s.logger.Info("Server Exited Properly")
-	return s.echo.Server.Shutdown(ctx)
+func (s *trafficControlServer) MapHandlers(e *echo.Echo) error {
+	svcService := tcServices.NewSpeedingViolationCalculator("A12", 10, 100, 5)
+	vsRepository := tcRepositories.NewVehicleStateRepository()
+	tcHandlers := tcHttp.NewTrafficControlHandlers(s.cfg, svcService, vsRepository, s.logger)
+	tcApiGroup := e.Group("/")
+	tcHttp.MapTrafficControlRoutes(tcApiGroup, tcHandlers)
+	return nil
 }

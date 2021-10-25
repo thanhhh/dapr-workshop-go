@@ -10,17 +10,16 @@ import (
 type Config struct {
 	Server ServerConfig
 	Logger Logger
-	Dapr   DaprConfig
 }
 
 type ServerConfig struct {
-	AppVersion string
-	Port       string
-	ReadTimeout int
+	AppVersion   string
+	Port         string
+	ReadTimeout  int
 	WriteTimeout int
-	SSL        bool
-	Debug      bool
-	Mode       string
+	SSL          bool
+	Debug        bool
+	Mode         string
 }
 
 type Logger struct {
@@ -29,11 +28,6 @@ type Logger struct {
 	DisableStacktrace bool
 	Encoding          string
 	Level             string
-}
-
-type DaprConfig struct {
-	DaprHost string
-	DaprPort string
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

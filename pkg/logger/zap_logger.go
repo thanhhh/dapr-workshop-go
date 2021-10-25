@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"dapr-workshop-go/traffic-control-service/config"
+	"dapr-workshop-go/pkg/config"
 	"os"
 
 	"go.uber.org/zap"

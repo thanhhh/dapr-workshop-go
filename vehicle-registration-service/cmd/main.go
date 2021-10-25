@@ -5,7 +5,7 @@ import (
 	"dapr-workshop-go/pkg/logger"
 	"dapr-workshop-go/pkg/server"
 	"dapr-workshop-go/pkg/utils"
-	tcServer "dapr-workshop-go/traffic-control-service/internal/server"
+	vrServer "dapr-workshop-go/vehicle-registration-service/internal/server"
 	"log"
 	"os"
 
@@ -34,7 +34,7 @@ func main() {
 
 	echo := echo.New()
 
-	serverHandlers := tcServer.NewServerHandler(echo, cfg, appLogger)
+	serverHandlers := vrServer.NewServerHandler(echo, cfg, appLogger)
 
 	s := server.NewServer(echo, cfg, appLogger, serverHandlers)
 	if err = s.Run(); err != nil {
