@@ -7,6 +7,7 @@ import (
 	"dapr-workshop-go/traffic-control-service/internal/models"
 	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
 	"dapr-workshop-go/traffic-control-service/pkg/logger"
+	"dapr-workshop-go/traffic-control-service/pkg/utils"
 	"encoding/json"
 	"net/http"
 
@@ -29,19 +30,28 @@ func (h *trafficControlHandlers) VehicleEntry() echo.HandlerFunc {
 		message := &events.VehicleRegistered{}
 
 		if err := c.Bind(message); err != nil {
+			h.logger.Error(err)
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		h.logger.Info(
-			"ENTRY detected in lane %d at %s of vehicle with license-number {msg.LicenseNumber}.",
-			message.Lane, message.Timestamp.Format("hh:mm:ss"))
+		if err := utils.ValidateStruct(c.Request().Context(), message); err != nil {
+			h.logger.Error(err)
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		h.logger.Infof(
+			"ENTRY detected in lane %s at %s of vehicle with license-number %s.",
+			message.Lane, message.Timestamp.Format("15:04:05"), message.LicenseNumber)
 
 		vehicleState := models.VehicleState{
 			LicenseNumber:  message.LicenseNumber,
 			EntryTimestamp: message.Timestamp,
 		}
 
-		h.repository.Save(vehicleState)
+		err := h.repository.Save(vehicleState)
+		if err != nil {
+			return c.NoContent(http.StatusInternalServerError)
+		}
 
 		return c.NoContent(http.StatusOK)
 	}
@@ -51,8 +61,18 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 		message := &events.VehicleRegistered{}
 
 		if err := c.Bind(message); err != nil {
+			h.logger.Error(err)
 			return c.NoContent(http.StatusBadRequest)
 		}
+
+		if err := utils.ValidateStruct(c.Request().Context(), message); err != nil {
+			h.logger.Error(err)
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		h.logger.Infof(
+			"EXIT detected in lane %s at %s of vehicle with license-number %s.",
+			message.Lane, message.Timestamp.Format("15:04:05"), message.LicenseNumber)
 
 		vehicleState, err := h.repository.Get(message.LicenseNumber)
 

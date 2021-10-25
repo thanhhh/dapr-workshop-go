@@ -3,7 +3,7 @@ package events
 import "time"
 
 type VehicleRegistered struct {
-	Lane          int
-	LicenseNumber string
-	Timestamp     time.Time
+	Lane          string    `json:"lane" validate:"required"`
+	LicenseNumber string    `json:"license_number" validate:"required"`
+	Timestamp     time.Time `json:"timestamp" validate:"required"`
 }

@@ -21,7 +21,7 @@ func GetVehicleRegisteredFromCtx(ctx context.Context) (*events.VehicleRegistered
 
 func GetConfigPath(configPath string) string {
 	if configPath == "docker" {
-		return "./config/config-docker"
+		return "./config/config_docker.yml"
 	}
-	return "./config/config-local"
+	return "./config/config_local.yml"
 }

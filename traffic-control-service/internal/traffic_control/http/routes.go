@@ -8,4 +8,5 @@ import (
 
 func MapTrafficControlRoutes(commGroup *echo.Group, h tc.Handlers) {
 	commGroup.POST("entrycam", h.VehicleEntry())
+	commGroup.POST("exitcam", h.VehicleExit())
 }

@@ -1,0 +1,19 @@
+POST http://localhost:5000/entrycam HTTP/1.1
+content-type: application/json
+
+{
+    "lane": "A1",
+    "license_number": "30F99153",
+    "timestamp": "2021-10-25T15:52:12.120+07:00"
+}
+
+###
+
+POST http://localhost:5000/exitcam HTTP/1.1
+content-type: application/json
+
+{
+    "lane": "A1",
+    "license_number": "30F99153",
+    "timestamp": "2021-12-25T15:52:12.120+07:00"
+}
