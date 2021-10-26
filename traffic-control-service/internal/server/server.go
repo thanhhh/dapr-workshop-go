@@ -22,10 +22,10 @@ func NewServerHandler(echo *echo.Echo, cfg *config.Config, logger logger.Logger)
 }
 
 func (s *trafficControlServer) MapHandlers(e *echo.Echo) error {
-	svcService := tcServices.NewSpeedingViolationCalculator("A12", 10, 100, 5)
-	vsRepository := tcRepositories.NewVehicleStateRepository()
-	tcHandlers := tcHttp.NewTrafficControlHandlers(s.cfg, svcService, vsRepository, s.logger)
-	tcApiGroup := e.Group("/")
-	tcHttp.MapTrafficControlRoutes(tcApiGroup, tcHandlers)
+	calculator := tcServices.NewSpeedingViolationCalculator("A12", 10, 100, 5)
+	repository := tcRepositories.NewVehicleStateRepository()
+	handlers := tcHttp.NewHandlers(s.cfg, calculator, repository, s.logger)
+	apiGroup := e.Group("/")
+	tcHttp.MapRoutes(apiGroup, handlers)
 	return nil
 }

@@ -7,8 +7,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	vrHttp "dapr-workshop-go/vehicle-registration-service/internal/http"
-	"dapr-workshop-go/vehicle-registration-service/internal/repositories"
+	vrHttp "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration/http"
+	vrRepos "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration/repositories"
 )
 
 type vehicleRegistrationServer struct {
@@ -22,7 +22,7 @@ func NewServerHandler(echo *echo.Echo, cfg *config.Config, logger logger.Logger)
 }
 
 func (s vehicleRegistrationServer) MapHandlers(e *echo.Echo) error {
-	repository := repositories.NewInMemoryRepository()
+	repository := vrRepos.NewInMemoryRepository()
 	vrHandlers := vrHttp.NewHandlers(s.cfg, repository, s.logger)
 	httpGroup := e.Group("/")
 	vrHttp.MapRoutes(httpGroup, vrHandlers)

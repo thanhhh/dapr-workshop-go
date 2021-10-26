@@ -8,18 +8,24 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig
-	Logger Logger
+	Server     ServerConfig
+	Logger     Logger
+	LicenseKey LicenseKey
 }
 
 type ServerConfig struct {
-	AppVersion   string
-	Port         string
+	AppVersion string
+	Port       string
+
 	ReadTimeout  int
 	WriteTimeout int
 	SSL          bool
 	Debug        bool
 	Mode         string
+}
+
+type LicenseKey struct {
+	FineCalculatorLicenseKey string
 }
 
 type Logger struct {

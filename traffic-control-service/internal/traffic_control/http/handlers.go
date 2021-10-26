@@ -21,7 +21,7 @@ type trafficControlHandlers struct {
 	logger     logger.Logger
 }
 
-func NewTrafficControlHandlers(cfg *config.Config, service tc.SpeedingViolationCalculator, repository tc.VehicleStateRepository, logger logger.Logger) tc.Handlers {
+func NewHandlers(cfg *config.Config, service tc.SpeedingViolationCalculator, repository tc.VehicleStateRepository, logger logger.Logger) tc.Handlers {
 	return &trafficControlHandlers{cfg: cfg, service: service, repository: repository, logger: logger}
 }
 
