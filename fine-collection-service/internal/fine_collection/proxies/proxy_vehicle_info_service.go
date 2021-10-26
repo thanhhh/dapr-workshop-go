@@ -18,25 +18,25 @@ func NewProxy() fc.VehicleInfoService {
 	return &proxyVehicleInfoService{}
 }
 
-func (p proxyVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
+func (p *proxyVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
 	vehicleInfo := models.VehicleInfo{}
 
 	url := fmt.Sprintf("http://127.0.0.1:6002/vehicleinfo/%s", vehicleId)
 
 	resp, err := http.Get(url)
 	if err != nil {
-		p.logger.Fatal(err)
+		p.logger.Error(err)
 
 		return vehicleInfo, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		p.logger.Fatal(err)
+		p.logger.Error(err)
 		return vehicleInfo, err
 	}
 	if err := json.Unmarshal(body, &vehicleInfo); err != nil {
-		p.logger.Fatal(err)
+		p.logger.Error(err)
 		return vehicleInfo, err
 	}
 

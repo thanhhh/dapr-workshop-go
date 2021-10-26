@@ -28,7 +28,7 @@ func main() {
 		log.Fatalf("ParseConfig: %v", err)
 	}
 
-	appLogger := logger.NewApiLogger(cfg)
+	appLogger := logger.NewLogger(cfg)
 
 	appLogger.InitLogger()
 	appLogger.Infof(

@@ -40,7 +40,7 @@ func (h *trafficControlHandlers) VehicleEntry() echo.HandlerFunc {
 		}
 
 		h.logger.Infof(
-			"ENTRY detected in lane %s at %s of vehicle with license-number %s.",
+			"ENTRY detected in lane %d at %s of vehicle with license-number %s.",
 			message.Lane, message.Timestamp.Format("15:04:05"), message.LicenseNumber)
 
 		vehicleState := models.VehicleState{
@@ -71,7 +71,7 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 		}
 
 		h.logger.Infof(
-			"EXIT detected in lane %s at %s of vehicle with license-number %s.",
+			"EXIT detected in lane %d at %s of vehicle with license-number %s.",
 			message.Lane, message.Timestamp.Format("15:04:05"), message.LicenseNumber)
 
 		vehicleState, err := h.repository.Get(message.LicenseNumber)
