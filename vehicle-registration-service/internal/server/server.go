@@ -1,11 +1,11 @@
 package server
 
 import (
+	"github.com/labstack/echo/v4"
+
 	"dapr-workshop-go/pkg/config"
 	"dapr-workshop-go/pkg/logger"
 	"dapr-workshop-go/pkg/server"
-
-	"github.com/labstack/echo/v4"
 
 	vrHttp "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration/http"
 	vrRepos "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration/repositories"

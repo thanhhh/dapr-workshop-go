@@ -1,4 +1,4 @@
-package vehicle_registration
+package vehicleregistration
 
 import "dapr-workshop-go/vehicle-registration-service/internal/models"
 

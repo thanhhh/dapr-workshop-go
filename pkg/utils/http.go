@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"dapr-workshop-go/pkg/logger"
-
 	"github.com/labstack/echo/v4"
+
+	"dapr-workshop-go/pkg/logger"
 )
 
 func GetConfigPath(configPath string) string {

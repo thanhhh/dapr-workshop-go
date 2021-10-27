@@ -1,13 +1,14 @@
 package repositories
 
 import (
-	"dapr-workshop-go/vehicle-registration-service/internal/models"
-	vr "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration"
 	"math/rand"
 	"strings"
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
+
+	"dapr-workshop-go/vehicle-registration-service/internal/models"
+	vr "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration"
 )
 
 type inmemoryRepository struct {

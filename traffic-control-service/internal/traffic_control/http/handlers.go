@@ -2,16 +2,18 @@ package http
 
 import (
 	"bytes"
-	"dapr-workshop-go/pkg/config"
-	"dapr-workshop-go/pkg/logger"
-	"dapr-workshop-go/pkg/utils"
-	"dapr-workshop-go/traffic-control-service/internal/events"
-	"dapr-workshop-go/traffic-control-service/internal/models"
-	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
 	"encoding/json"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"dapr-workshop-go/pkg/config"
+	"dapr-workshop-go/pkg/logger"
+	"dapr-workshop-go/pkg/utils"
+
+	"dapr-workshop-go/traffic-control-service/internal/events"
+	"dapr-workshop-go/traffic-control-service/internal/models"
+	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
 )
 
 type trafficControlHandlers struct {

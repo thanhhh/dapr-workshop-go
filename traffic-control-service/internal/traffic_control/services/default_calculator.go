@@ -1,9 +1,10 @@
 package services
 
 import (
-	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
 	"math"
 	"time"
+
+	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
 )
 
 type defaultSpeedingViolationCalculator struct {

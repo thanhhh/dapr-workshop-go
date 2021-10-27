@@ -7,12 +7,12 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"dapr-workshop-go/pkg/config"
+	"dapr-workshop-go/pkg/errors"
 	"dapr-workshop-go/pkg/logger"
 	"dapr-workshop-go/pkg/utils"
 
 	fc "dapr-workshop-go/fine-collection-service/internal/fine_collection"
 	"dapr-workshop-go/fine-collection-service/internal/models"
-	httpErrors "dapr-workshop-go/pkg/errors"
 )
 
 type fineCollectionHandlers struct {
@@ -40,6 +40,8 @@ func NewHandlers(
 
 func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var err error
+
 		speedingViolation := &models.SpeedingViolation{}
 
 		if err := c.Bind(speedingViolation); err != nil {
@@ -66,7 +68,7 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 
 		if err != nil {
 			h.logger.Error(err)
-			return c.JSON(http.StatusBadRequest, httpErrors.NewBadRequestError(
+			return c.JSON(http.StatusBadRequest, errors.NewBadRequestError(
 				fmt.Sprintf("Vehicle Id %s is not found", speedingViolation.VehicleId)))
 		}
 

@@ -1,15 +1,17 @@
 package main
 
 import (
-	"dapr-workshop-go/pkg/config"
-	"dapr-workshop-go/pkg/logger"
-	"dapr-workshop-go/pkg/server"
-	"dapr-workshop-go/pkg/utils"
-	tcServer "dapr-workshop-go/traffic-control-service/internal/server"
 	"log"
 	"os"
 
 	"github.com/labstack/echo/v4"
+
+	"dapr-workshop-go/pkg/config"
+	"dapr-workshop-go/pkg/logger"
+	"dapr-workshop-go/pkg/server"
+	"dapr-workshop-go/pkg/utils"
+
+	tcServer "dapr-workshop-go/traffic-control-service/internal/server"
 )
 
 func main() {
