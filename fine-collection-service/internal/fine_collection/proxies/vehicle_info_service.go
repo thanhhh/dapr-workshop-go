@@ -1,24 +1,27 @@
 package proxies
 
 import (
-	fc "dapr-workshop-go/fine-collection-service/internal/fine_collection"
-	"dapr-workshop-go/fine-collection-service/internal/models"
-	"dapr-workshop-go/pkg/logger"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	fc "dapr-workshop-go/fine-collection-service/internal/fine_collection"
+	"dapr-workshop-go/fine-collection-service/internal/models"
+	"dapr-workshop-go/pkg/logger"
 )
 
-type proxyVehicleInfoService struct {
+type defaultVehicleInfoService struct {
 	logger logger.Logger
 }
 
 func NewProxy(logger logger.Logger) fc.VehicleInfoService {
-	return &proxyVehicleInfoService{logger: logger}
+	return &defaultVehicleInfoService{
+		logger: logger,
+	}
 }
 
-func (p *proxyVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
+func (p *defaultVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
 	vehicleInfo := models.VehicleInfo{}
 
 	url := fmt.Sprintf("http://localhost:3601/v1.0/invoke/vehicleregistrationservice/method/vehicleinfo/%s", vehicleId)
@@ -35,6 +38,7 @@ func (p *proxyVehicleInfoService) GetVehicleInfo(vehicleId string) (models.Vehic
 		p.logger.Error(err)
 		return vehicleInfo, err
 	}
+
 	if err := json.Unmarshal(body, &vehicleInfo); err != nil {
 		p.logger.Error(err)
 		return vehicleInfo, err
