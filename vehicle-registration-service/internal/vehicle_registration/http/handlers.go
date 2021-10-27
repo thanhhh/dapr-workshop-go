@@ -1,14 +1,16 @@
 package http
 
 import (
-	"dapr-workshop-go/pkg/config"
-	httpErrors "dapr-workshop-go/pkg/errors"
-	"dapr-workshop-go/pkg/logger"
-	"dapr-workshop-go/pkg/utils"
-	vr "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"dapr-workshop-go/pkg/config"
+	"dapr-workshop-go/pkg/errors"
+	"dapr-workshop-go/pkg/logger"
+	"dapr-workshop-go/pkg/utils"
+
+	vr "dapr-workshop-go/vehicle-registration-service/internal/vehicle_registration"
 )
 
 type vehicleRegistrationHandlers struct {
@@ -30,8 +32,8 @@ func (h *vehicleRegistrationHandlers) GetVehicleInfo() echo.HandlerFunc {
 		licenseNumber := c.Param("licenseNumber")
 
 		if licenseNumber == "" {
-			utils.LogResponseError(c, h.logger, httpErrors.NewBadRequestError("licenseNumber is required"))
-			return c.JSON(http.StatusBadRequest, httpErrors.NewBadRequestError("licenseNumber is required"))
+			utils.LogResponseError(c, h.logger, errors.NewBadRequestError("licenseNumber is required"))
+			return c.JSON(http.StatusBadRequest, errors.NewBadRequestError("licenseNumber is required"))
 		}
 
 		vehicleInfo := h.repository.Get(licenseNumber)

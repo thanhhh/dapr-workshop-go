@@ -2,13 +2,14 @@ package server
 
 import (
 	"context"
-	"dapr-workshop-go/pkg/config"
-	"dapr-workshop-go/pkg/logger"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"dapr-workshop-go/pkg/config"
+	"dapr-workshop-go/pkg/logger"
 
 	"github.com/labstack/echo/v4"
 )

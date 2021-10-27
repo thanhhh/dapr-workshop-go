@@ -1,4 +1,4 @@
-package vehicle_registration
+package vehicleregistration
 
 import "github.com/labstack/echo/v4"
 

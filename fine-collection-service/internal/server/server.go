@@ -23,7 +23,7 @@ func NewServerHandler(echo *echo.Echo, cfg *config.Config, logger logger.Logger)
 }
 
 func (s *fineCollectionServer) MapHandlers(e *echo.Echo) error {
-	vehicleService := fcProxies.NewProxy()
+	vehicleService := fcProxies.NewProxy(s.logger)
 	emailService := fcServices.NewEmailService(s.logger)
 	fineCalculator := fcServices.NewFineCalculator()
 

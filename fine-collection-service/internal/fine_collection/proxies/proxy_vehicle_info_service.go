@@ -14,8 +14,8 @@ type proxyVehicleInfoService struct {
 	logger logger.Logger
 }
 
-func NewProxy() fc.VehicleInfoService {
-	return &proxyVehicleInfoService{}
+func NewProxy(logger logger.Logger) fc.VehicleInfoService {
+	return &proxyVehicleInfoService{logger: logger}
 }
 
 func (p *proxyVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {

@@ -6,6 +6,7 @@ import (
 	"dapr-workshop-go/pkg/config"
 	"dapr-workshop-go/pkg/logger"
 	"dapr-workshop-go/pkg/server"
+
 	tcHttp "dapr-workshop-go/traffic-control-service/internal/traffic_control/http"
 	tcRepositories "dapr-workshop-go/traffic-control-service/internal/traffic_control/repositories"
 	tcServices "dapr-workshop-go/traffic-control-service/internal/traffic_control/services"

@@ -1,11 +1,12 @@
 package logger
 
 import (
-	"dapr-workshop-go/pkg/config"
 	"os"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"dapr-workshop-go/pkg/config"
 )
 
 type Logger interface {

@@ -1,13 +1,14 @@
 package proxies
 
 import (
-	"log"
 	"bytes"
-	tc "dapr-workshop-go/simulation/internal"
-	"dapr-workshop-go/simulation/internal/events"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+
+	tc "dapr-workshop-go/simulation/internal"
+	"dapr-workshop-go/simulation/internal/events"
 )
 
 type defaultService struct {
@@ -18,6 +19,8 @@ func NewService() tc.Service {
 }
 
 func (s *defaultService) SendVehicleEntry(vehicleRegistered events.VehicleRegistered) error {
+	var err error
+
 	data, err := json.Marshal(vehicleRegistered)
 	if err != nil {
 		log.Print(err)
@@ -26,6 +29,13 @@ func (s *defaultService) SendVehicleEntry(vehicleRegistered events.VehicleRegist
 	}
 
 	req, err := http.NewRequest("POST", "http://localhost:6000/entrycam", bytes.NewBuffer(data))
+
+	if err != nil {
+		log.Print(err)
+
+		return fmt.Errorf("SendVehicleEntry create http request entrycam error: %v", err)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -42,6 +52,8 @@ func (s *defaultService) SendVehicleEntry(vehicleRegistered events.VehicleRegist
 }
 
 func (s *defaultService) SendVehicleExit(vehicleRegistered events.VehicleRegistered) error {
+	var err error
+
 	data, err := json.Marshal(vehicleRegistered)
 	if err != nil {
 		log.Print(err)
