@@ -1,17 +1,18 @@
 package http
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+
 	"dapr-workshop-go/pkg/config"
 	"dapr-workshop-go/pkg/logger"
 	"dapr-workshop-go/pkg/utils"
-	"fmt"
-	"net/http"
 
 	fc "dapr-workshop-go/fine-collection-service/internal/fine_collection"
 	"dapr-workshop-go/fine-collection-service/internal/models"
 	httpErrors "dapr-workshop-go/pkg/errors"
-
-	"github.com/labstack/echo/v4"
 )
 
 type fineCollectionHandlers struct {

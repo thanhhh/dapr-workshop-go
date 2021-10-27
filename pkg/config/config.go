@@ -14,9 +14,9 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	AppVersion string
-	Port       string
-
+	AppVersion   string
+	Port         string
+	DaprGrpcPort string
 	ReadTimeout  int
 	WriteTimeout int
 	SSL          bool

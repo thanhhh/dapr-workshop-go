@@ -1,11 +1,11 @@
 package server
 
 import (
+	"github.com/labstack/echo/v4"
+
 	"dapr-workshop-go/pkg/config"
 	"dapr-workshop-go/pkg/logger"
 	"dapr-workshop-go/pkg/server"
-
-	"github.com/labstack/echo/v4"
 
 	fcHttp "dapr-workshop-go/fine-collection-service/internal/fine_collection/http"
 	fcProxies "dapr-workshop-go/fine-collection-service/internal/fine_collection/proxies"
@@ -23,7 +23,7 @@ func NewServerHandler(echo *echo.Echo, cfg *config.Config, logger logger.Logger)
 }
 
 func (s *fineCollectionServer) MapHandlers(e *echo.Echo) error {
-	vehicleService := fcProxies.NewProxy()
+	vehicleService := fcProxies.NewProxy(s.logger)
 	emailService := fcServices.NewEmailService(s.logger)
 	fineCalculator := fcServices.NewFineCalculator()
 

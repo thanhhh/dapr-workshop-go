@@ -14,14 +14,14 @@ type proxyVehicleInfoService struct {
 	logger logger.Logger
 }
 
-func NewProxy() fc.VehicleInfoService {
-	return &proxyVehicleInfoService{}
+func NewProxy(logger logger.Logger) fc.VehicleInfoService {
+	return &proxyVehicleInfoService{logger: logger}
 }
 
 func (p *proxyVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
 	vehicleInfo := models.VehicleInfo{}
 
-	url := fmt.Sprintf("http://127.0.0.1:6002/vehicleinfo/%s", vehicleId)
+	url := fmt.Sprintf("http://localhost:3601/v1.0/invoke/vehicleregistrationservice/method/vehicleinfo/%s", vehicleId)
 
 	resp, err := http.Get(url)
 	if err != nil {

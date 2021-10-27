@@ -1,6 +1,7 @@
 server:
   AppVersion: 1.0.0
   Port: :6001
+  DaprGrpcPort: 60001
   Mode: Development
   JwtSecretKey: secretkey
   CookieName: jwt-token
