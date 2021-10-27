@@ -10,15 +10,15 @@ import (
 	"net/http"
 )
 
-type proxyVehicleInfoService struct {
+type defaultVehicleInfoService struct {
 	logger logger.Logger
 }
 
 func NewProxy(logger logger.Logger) fc.VehicleInfoService {
-	return &proxyVehicleInfoService{logger: logger}
+	return &defaultVehicleInfoService{logger: logger}
 }
 
-func (p *proxyVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
+func (p *defaultVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
 	vehicleInfo := models.VehicleInfo{}
 
 	url := fmt.Sprintf("http://127.0.0.1:6002/vehicleinfo/%s", vehicleId)
