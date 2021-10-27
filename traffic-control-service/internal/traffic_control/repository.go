@@ -1,4 +1,4 @@
-package traffic_control
+package trafficcontrol
 
 import "dapr-workshop-go/traffic-control-service/internal/models"
 

@@ -1,4 +1,4 @@
-package traffic_control
+package trafficcontrol
 
 import "time"
 
