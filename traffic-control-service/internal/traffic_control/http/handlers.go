@@ -95,7 +95,7 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 			vehicleState.EntryTimestamp, vehicleState.ExitTimestamp)
 
 		if violation > 0 {
-			h.logger.Info(
+			h.logger.Infof(
 				"Speeding violation detected (%d KMh) of vehicle with license-number %s.",
 				violation,
 				vehicleState.LicenseNumber)
