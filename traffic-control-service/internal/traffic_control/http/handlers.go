@@ -101,7 +101,7 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 				vehicleState.LicenseNumber)
 
 			speedingViolation := models.SpeedingViolation{
-				LicenseNumber:  message.LicenseNumber,
+				VehicleId:      message.LicenseNumber,
 				RoadId:         h.service.GetRoadId(),
 				ViolationInKmh: violation,
 				Timestamp:      message.Timestamp,
@@ -114,6 +114,10 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 			}
 			req, err := http.NewRequest("POST", "http://localhost:6001/collectfine", bytes.NewBuffer(data))
 			req.Header.Set("Content-Type", "application/json")
+
+			if err != nil {
+				h.logger.DPanic(err)
+			}
 
 			client := &http.Client{}
 			resp, err := client.Do(req)

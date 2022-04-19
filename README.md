@@ -18,7 +18,7 @@ go run ./cmd/main.go
 
 ```
 cd vehicle-registration-service
-dapr run --app-id vehicleregistrationservice --app-port 6002 --dapr-http-port 3602 --dapr-grpc-port 60002 go run ./cmd/main.go
+dapr run --app-id vehicleregistrationservice --app-port 6003 --dapr-http-port 3602 --dapr-grpc-port 60003 go run ./cmd/main.go
 ```
 
 3. Fine Collection Service Dapr

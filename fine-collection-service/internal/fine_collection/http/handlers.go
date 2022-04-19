@@ -83,7 +83,7 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 			"Road: %s, Licensenumber: %s, "+
 			"Vehicle: %s %s, "+
 			"Violation: %d Km/h, Fine: %s, "+
-			"On: %s at %s.",
+			"On: %s at %s",
 			vehicleInfo.OwnerName,
 			speedingViolation.RoadId,
 			speedingViolation.VehicleId,
@@ -91,8 +91,8 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 			vehicleInfo.Model,
 			speedingViolation.ViolationInKmh,
 			fineString,
-			speedingViolation.Timestamp.Format("31-12-2021"),
-			speedingViolation.Timestamp.Format("13:59:59"),
+			speedingViolation.Timestamp.Format("02-01-2006"),
+			speedingViolation.Timestamp.Format("15:04:05"),
 		)
 
 		// send fine by email
