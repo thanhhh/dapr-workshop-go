@@ -5,5 +5,5 @@ import (
 )
 
 type VehicleInfoService interface {
-	GetVehicleInfo(vehicleId string) (models.VehicleInfo, error)
+	GetVehicleInfo(licenseNumber string) (models.VehicleInfo, error)
 }
