@@ -42,6 +42,8 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var err error
 
+		ctx := c.Request().Context()
+
 		speedingViolation := &models.SpeedingViolation{}
 
 		if err := c.Bind(speedingViolation); err != nil {
@@ -49,22 +51,22 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 
-		if err := utils.ValidateStruct(c.Request().Context(), speedingViolation); err != nil {
+		if err := utils.ValidateStruct(ctx, speedingViolation); err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, err)
 		}
 
-		fine, err := h.calculator.CalculateFine(
+		fine, _ := h.calculator.CalculateFine(
 			h.cfg.LicenseKey.FineCalculatorLicenseKey,
 			speedingViolation.ViolationInKmh)
 
-		if err := utils.ValidateStruct(c.Request().Context(), speedingViolation); err != nil {
+		if err := utils.ValidateStruct(ctx, speedingViolation); err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, err)
 		}
 
 		// get owner info
-		vehicleInfo, err := h.vehicleService.GetVehicleInfo(speedingViolation.VehicleId)
+		vehicleInfo, err := h.vehicleService.GetVehicleInfo(ctx, speedingViolation.VehicleId)
 
 		if err != nil {
 			h.logger.Error(err)

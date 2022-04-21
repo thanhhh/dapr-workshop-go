@@ -1,10 +1,12 @@
 package proxies
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"log"
+
+	dapr "github.com/dapr/go-sdk/client"
 
 	fc "dapr-workshop-go/fine-collection-service/internal/fine_collection"
 	"dapr-workshop-go/fine-collection-service/internal/models"
@@ -21,25 +23,24 @@ func NewProxy(logger logger.Logger) fc.VehicleInfoService {
 	}
 }
 
-func (p *defaultVehicleInfoService) GetVehicleInfo(licenseNumber string) (models.VehicleInfo, error) {
+func (p *defaultVehicleInfoService) GetVehicleInfo(ctx context.Context, licenseNumber string) (models.VehicleInfo, error) {
 	vehicleInfo := models.VehicleInfo{}
 
-	url := fmt.Sprintf("http://localhost:3601/v1.0/invoke/vehicleregistrationservice/method/vehicleinfo/%s", licenseNumber)
+	daprClient, err := dapr.NewClient()
+	if err != nil {
+		log.Panic(err)
+	}
+	// defer daprClient.Close()
 
-	resp, err := http.Get(url)
+	methodName := fmt.Sprintf("vehicleinfo/%s", licenseNumber)
+	resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "get")
+
 	if err != nil {
 		p.logger.Error(err)
-
 		return vehicleInfo, err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		p.logger.Error(err)
-		return vehicleInfo, err
-	}
-
-	if err := json.Unmarshal(body, &vehicleInfo); err != nil {
+	if err := json.Unmarshal(resp, &vehicleInfo); err != nil {
 		p.logger.Error(err)
 		return vehicleInfo, err
 	}
