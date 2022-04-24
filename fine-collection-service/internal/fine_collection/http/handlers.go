@@ -15,6 +15,10 @@ import (
 	"dapr-workshop-go/fine-collection-service/internal/models"
 )
 
+type CloudEvent struct {
+	SpeedingViolation models.SpeedingViolation `json:"data"`
+}
+
 type fineCollectionHandlers struct {
 	cfg            *config.Config
 	vehicleService fc.VehicleInfoService
@@ -44,12 +48,14 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 
 		ctx := c.Request().Context()
 
-		speedingViolation := &models.SpeedingViolation{}
+		payload := &CloudEvent{}
 
-		if err := c.Bind(speedingViolation); err != nil {
+		if err := c.Bind(payload); err != nil {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(http.StatusBadRequest, err)
 		}
+
+		speedingViolation := payload.SpeedingViolation
 
 		if err := utils.ValidateStruct(ctx, speedingViolation); err != nil {
 			h.logger.Error(err)

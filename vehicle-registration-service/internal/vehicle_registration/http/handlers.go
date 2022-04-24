@@ -38,6 +38,8 @@ func (h *vehicleRegistrationHandlers) GetVehicleInfo() echo.HandlerFunc {
 
 		vehicleInfo := h.repository.Get(licenseNumber)
 
+		h.logger.Infof(
+			"Requested vehicle registration information for license-number %s.", licenseNumber)
 		return c.JSON(http.StatusOK, vehicleInfo)
 	}
 }

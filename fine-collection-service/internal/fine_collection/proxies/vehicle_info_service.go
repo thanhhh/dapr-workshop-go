@@ -30,10 +30,9 @@ func (p *defaultVehicleInfoService) GetVehicleInfo(ctx context.Context, licenseN
 	if err != nil {
 		log.Panic(err)
 	}
-	// defer daprClient.Close()
 
 	methodName := fmt.Sprintf("vehicleinfo/%s", licenseNumber)
-	resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "get")
+	resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "GET")
 
 	if err != nil {
 		p.logger.Error(err)

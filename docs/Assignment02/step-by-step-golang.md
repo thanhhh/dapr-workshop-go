@@ -232,7 +232,7 @@ The services are up & running. Now you're going to test this using the simulatio
 
 1. Open a **new** terminal window in VS Code and change the current folder to `Simulation`.
 
-1. Start the simulation:
+2. Start the simulation:
 
    ```console
    ./main
@@ -260,4 +260,4 @@ So how can you check whether or not the call to the VehicleRegistrationService i
 
 Make sure you stop all running processes and close all the terminal windows in VS Code before proceeding to the next assignment.
 
-Go to [assignment 3](../Assignment03/README.md).
+Go to [assignment 3](../Assignment03/step-by-step-golang.md).
