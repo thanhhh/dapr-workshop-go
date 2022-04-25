@@ -3,8 +3,6 @@ package proxies
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"log"
 
 	dapr "github.com/dapr/go-sdk/client"
 
@@ -28,11 +26,10 @@ func (p *defaultVehicleInfoService) GetVehicleInfo(ctx context.Context, licenseN
 
 	daprClient, err := dapr.NewClient()
 	if err != nil {
-		log.Panic(err)
+		p.logger.Error(err)
 	}
-
-	methodName := fmt.Sprintf("vehicleinfo/%s", licenseNumber)
-	resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "GET")
+	methodName := "vehicleinfo/" + licenseNumber
+	resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "get")
 
 	if err != nil {
 		p.logger.Error(err)

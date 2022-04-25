@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/labstack/echo/v4"
+	echo "github.com/labstack/echo/v4"
 
 	"dapr-workshop-go/pkg/config"
 	"dapr-workshop-go/pkg/logger"
@@ -39,10 +39,21 @@ func main() {
 		cfg.Server.Mode,
 		cfg.Server.SSL)
 
-	echo := echo.New()
-	serverHandlers := fcServer.NewServerHandler(echo, cfg, appLogger)
+	e := echo.New()
+	// e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
+	// 	data := make(map[string]interface{})
+	// 	err := json.Unmarshal(resBody, &data)
 
-	s := server.NewServer(echo, cfg, appLogger, serverHandlers)
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 	}
+
+	// 	log.Println(data)
+	// }))
+
+	serverHandlers := fcServer.NewServerHandler(e, cfg, appLogger)
+
+	s := server.NewServer(e, cfg, appLogger, serverHandlers)
 	if err = s.Run(); err != nil {
 		log.Fatal(err)
 	}
