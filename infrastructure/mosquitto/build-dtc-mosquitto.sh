@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker build -t dapr-trafficcontrol/mosquitto:1.0 .
+arch -arm64 podman build -t dapr-trafficcontrol/mosquitto:1.0 .

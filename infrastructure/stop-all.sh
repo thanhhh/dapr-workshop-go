@@ -14,3 +14,12 @@ popd
 pushd ${basedir}/maildev
 ./stop-maildev.sh
 popd
+
+# dapr uninstall --network dapr-network
+podman stop dapr_zipkin
+podman stop dapr_redis
+
+podman rm dapr_zipkin
+podman rm dapr_redis
+
+# podman network rm dapr-network
