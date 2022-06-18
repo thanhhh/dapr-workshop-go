@@ -24,7 +24,7 @@ func NewServerHandler(echo *echo.Echo, cfg *config.Config, logger logger.Logger)
 
 func (s *trafficControlServer) MapHandlers(e *echo.Echo) error {
 	calculator := tcServices.NewSpeedingViolationCalculator("A12", 10, 100, 5)
-	repository := tcRepositories.NewVehicleStateRepository()
+	repository := tcRepositories.NewStateStoreRepository(s.logger)
 	handlers := tcHttp.NewHandlers(s.cfg, calculator, repository, s.logger)
 	apiGroup := e.Group("/")
 	tcHttp.MapRoutes(apiGroup, handlers)
