@@ -1,0 +1,10 @@
+// Publish speeding violation event
+POST http://localhost:3601/v1.0/publish/pubsub/speedingviolations HTTP/1.1
+content-type: application/json
+
+{ 
+  "vehicle_id": "AB-153-T", 
+  "road_id": "A34", 
+  "violation_in_kmh": 15,
+  "timestamp": "2022-09-20T08:33:41.338+07:00" 
+}

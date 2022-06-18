@@ -2,8 +2,11 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
+
+	dapr "github.com/dapr/go-sdk/client"
 
 	"github.com/labstack/echo/v4"
 
@@ -107,26 +110,26 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 				Timestamp:      message.Timestamp,
 			}
 
-			data, err := json.Marshal(speedingViolation)
+			bodyBytes := new(bytes.Buffer)
+			json.NewEncoder(bodyBytes).Encode(speedingViolation)
+
+			// data, err := json.Marshal(speedingViolation)
+			// if err != nil {
+			// 	h.logger.Error(err)
+			// 	return c.NoContent(http.StatusInternalServerError)
+			// }
+
+			client, err := dapr.NewClient()
 			if err != nil {
 				h.logger.Error(err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
-			req, err := http.NewRequest("POST", "http://localhost:6001/collectfine", bytes.NewBuffer(data))
-			req.Header.Set("Content-Type", "application/json")
 
-			if err != nil {
-				h.logger.DPanic(err)
-			}
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				h.logger.DPanic(err)
-
+			ctx := context.Background()
+			if err := client.PublishEvent(ctx, "pubsub", "speedingviolations", bodyBytes.Bytes()); err != nil {
+				h.logger.Error(err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
-			defer resp.Body.Close()
 		}
 
 		return c.NoContent(http.StatusOK)

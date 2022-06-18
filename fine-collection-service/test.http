@@ -9,3 +9,5 @@ Content-Type: application/json
   "violation_in_kmh": 15,
   "timestamp": "2020-09-20T08:33:41.338+07:00" 
 }
+
+# GET http://127.0.0.1:6001/dapr/subcribe
