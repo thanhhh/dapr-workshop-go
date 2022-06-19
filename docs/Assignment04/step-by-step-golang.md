@@ -53,9 +53,9 @@ state:
    repository := tcRepositories.NewVehicleStateRepository()
    ```
    You can see in package `traffic-control-service/internal/traffic_control/repositories`, we deined a memory repository.
-   In this assignment, we will define new repository using Dapr state store instead.
+   In this assignment, we will implement new repository using Dapr state store SDK for Go.
 
-3. Create the file `traffic-control-service/internal/traffic_control/repositories/state_repository.go` in VS Code 
+3. Create the file `traffic-control-service/internal/traffic_control/repositories/statestore_repository.go` in VS Code 
 
 4. Define state store name
 
@@ -63,7 +63,7 @@ state:
    const STATE_STORE_NAME = "statestore"
    ```
 
-5. Define state repository struct 
+5. Define state repository struct with logging
 
    ```go
    type stateStoreRepository struct {
