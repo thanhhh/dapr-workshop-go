@@ -277,51 +277,90 @@ specifying a different Dapr component configuration, you could use an entirely d
 
 ## Step 3: Use Dapr state management with the Dapr SDK for Go
 
-In this step you're going to change the `VehicleStateRepository` class and replace calling the Dapr state management
-API directly over HTTP with using the `DaprClient` from the Dapr SDK for Python.
+In this step you're going to change the `stateStoreRepository` class and replace calling the Dapr state management
+API directly over HTTP with using the `DaprClient` from the Dapr SDK for Go.
 
-1. Open the file `TrafficControlService/traffic_control/repositories.py` in VS Code.
+1. Open the file `traffic-control-service/internal/traffic_control/repositories/statestore_repository.go` in VS Code.
 
 2. Add an import statement to the top of the file for the Dapr client:
 
-   ```python
-   from dapr.clients import DaprClient
+   ```go
+   import (
+      dapr "github.com/dapr/go-sdk/client"
+   )
    ```
 
-3. Replace the the code in the `set_vehicle_state` with the following code:
+3. Replace the following code in the `Save` method:
 
-   ```python
-   with DaprClient() as client:
-        client.save_state("statestore", vehicle_state.license_number, vehicle_state.json())
+   ```go
+   url := fmt.Sprintf("http://localhost:3600/v1.0/state/%s", STATE_STORE_NAME)
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(entryJSON))
+	if err != nil {
+		r.logger.Error(err)
+		return fmt.Errorf("StateEntry send http to Dapr state store error: %v", err)
+	}
+
+	defer resp.Body.Close()
+   ```
+   
+   With the code that is implemented by using Dapr client SDK for Go:
+
+   ```go
+   client, err := dapr.NewClient()
+
+	if err != nil {
+		r.logger.Error(err)
+		return fmt.Errorf("create Dapr client error: %v", err)
+	}
+
+	ctx := context.Background()
+
+	err = client.SaveState(ctx, STATE_STORE_NAME, state.LicenseNumber, []byte(entryJSON), nil)
+	if err != nil {
+		r.logger.Error(err)
+		return fmt.Errorf("save state using Dapr client error: %v", err)
+	}
    ```
 
-4. Replace the implementation of the `get_vehicle_state` method with the following code:
+4. Replace the implementation of the `Get` method:
 
-   ```python
-   with DaprClient() as client:
-        return models.VehicleState.parse_raw(client.get_state("statestore", license_number).text())
+   ```go
+   func (r stateStoreRepository) Get(licenseNumber string) (models.VehicleState, error) {
+      client, err := dapr.NewClient()
+
+      if err != nil {
+         r.logger.Error(err)
+         return models.VehicleState{}, fmt.Errorf("create Dapr client error: %v", err)
+      }
+
+      ctx := context.Background()
+      result, err := client.GetState(ctx, STATE_STORE_NAME, licenseNumber, nil)
+
+      if err != nil {
+         r.logger.Error(err)
+         return models.VehicleState{}, fmt.Errorf("get state from Daprt client error: %v", err)
+      }
+
+      if len(result.Value) == 0 {
+         return models.VehicleState{}, errors.ErrVehicleStateRecordNotFound
+      }
+
+      var entries []StateEntry
+
+      err = json.Unmarshal(result.Value, &entries)
+      if err != nil {
+         r.logger.Fatal(err)
+
+         return models.VehicleState{}, fmt.Errorf("parse json state store data error: %v", err)
+      }
+
+      if len(entries) == 0 {
+         return models.VehicleState{}, errors.ErrVehicleStateRecordNotFound
+      }
+      return entries[0].Value, nil
+   }
    ```
-
-The repository code should now look like this:
-
-```python
-import requests
-from . import models
-from dapr.clients import DaprClient
-
-
-class VehicleStateRepository:
-    def __init__(self):
-        self.state = {}
-
-    def get_vehicle_state(self, license_number: str) -> models.VehicleState or None:
-        with DaprClient() as client:
-            return models.VehicleState.parse_raw(client.get_state("statestore", license_number).text())
-
-    def set_vehicle_state(self, vehicle_state: models.VehicleState) -> None:
-        with DaprClient() as client:
-            client.save_state("statestore", vehicle_state.license_number, vehicle_state.json())
-```
 
 Now you're ready to test the application. Just repeat steps 2a and 2b.
 

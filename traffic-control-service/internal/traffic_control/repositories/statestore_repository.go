@@ -1,13 +1,15 @@
 package repositories
 
 import (
-	"bytes"
-	"dapr-workshop-go/pkg/logger"
+	"context"
+
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
+	dapr "github.com/dapr/go-sdk/client"
+
+	"dapr-workshop-go/pkg/errors"
+	"dapr-workshop-go/pkg/logger"
 	models "dapr-workshop-go/traffic-control-service/internal/models"
 	tc "dapr-workshop-go/traffic-control-service/internal/traffic_control"
 )
@@ -41,45 +43,55 @@ func (r *stateStoreRepository) Save(state models.VehicleState) error {
 		return fmt.Errorf("StateEntry encode json error: %v", err)
 	}
 
-	url := fmt.Sprintf("http://localhost:3600/v1.0/state/%s", STATE_STORE_NAME)
+	client, err := dapr.NewClient()
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(entryJSON))
 	if err != nil {
 		r.logger.Error(err)
-		return fmt.Errorf("StateEntry send http to Dapr state store error: %v", err)
+		return fmt.Errorf("create Dapr client error: %v", err)
 	}
 
-	defer resp.Body.Close()
+	ctx := context.Background()
+
+	err = client.SaveState(ctx, STATE_STORE_NAME, state.LicenseNumber, []byte(entryJSON), nil)
+	if err != nil {
+		r.logger.Error(err)
+		return fmt.Errorf("save state using Dapr client error: %v", err)
+	}
 
 	return nil
 }
 
 func (r stateStoreRepository) Get(licenseNumber string) (models.VehicleState, error) {
-	url := fmt.Sprintf("http://localhost:3600/v1.0/state/%s/%s", STATE_STORE_NAME, licenseNumber)
+	client, err := dapr.NewClient()
 
-	resp, err := http.Get(url)
 	if err != nil {
 		r.logger.Error(err)
-
-		return models.VehicleState{}, fmt.Errorf("Get http Dapr state store error: %v", err)
+		return models.VehicleState{}, fmt.Errorf("create Dapr client error: %v", err)
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	ctx := context.Background()
+	result, err := client.GetState(ctx, STATE_STORE_NAME, licenseNumber, nil)
+
 	if err != nil {
-		r.logger.Fatal(err)
-
-		return models.VehicleState{}, fmt.Errorf("read state store data error: %v", err)
+		r.logger.Error(err)
+		return models.VehicleState{}, fmt.Errorf("get state from Daprt client error: %v", err)
 	}
 
-	var vehicleState models.VehicleState
+	if len(result.Value) == 0 {
+		return models.VehicleState{}, errors.ErrVehicleStateRecordNotFound
+	}
 
-	err = json.Unmarshal(data, &vehicleState)
+	var entries []StateEntry
+
+	err = json.Unmarshal(result.Value, &entries)
 	if err != nil {
 		r.logger.Fatal(err)
 
 		return models.VehicleState{}, fmt.Errorf("parse json state store data error: %v", err)
 	}
 
-	// r.logger.Infof("%v", stateEntry)
-	return vehicleState, nil
+	if len(entries) == 0 {
+		return models.VehicleState{}, errors.ErrVehicleStateRecordNotFound
+	}
+	return entries[0].Value, nil
 }
