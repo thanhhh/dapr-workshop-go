@@ -113,12 +113,6 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 			bodyBytes := new(bytes.Buffer)
 			json.NewEncoder(bodyBytes).Encode(speedingViolation)
 
-			// data, err := json.Marshal(speedingViolation)
-			// if err != nil {
-			// 	h.logger.Error(err)
-			// 	return c.NoContent(http.StatusInternalServerError)
-			// }
-
 			client, err := dapr.NewClient()
 			if err != nil {
 				h.logger.Error(err)
