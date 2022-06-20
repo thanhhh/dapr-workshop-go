@@ -1,126 +1,237 @@
-# Assignment 6 - Add a Dapr input binding
+# Assignment 5 - Add a Dapr output binding
 
 ## Assignment goals
 
 To complete this assignment, you must reach the following goals:
 
-- The TrafficControlService uses the Dapr MQTT input binding to receive entry- and exit-cam messages over the MQTT protocol.
-- The MQTT binding uses the lightweight MQTT message broker Mosquitto that runs as part of the solution in a Docker container.
-- The Camera Simulation publishes entry- and exit-cam messages to the MQTT broker.
+- The FineCollectionService uses the Dapr SMTP output binding to send an email.
+- The SMTP binding calls a development SMTP server that runs as part of the solution in a Docker container.
 
-This assignment targets number **5** in the end-state setup:
+This assignment targets number **4** in the end-state setup:
 
 <img src="../img/dapr-setup.png" style="zoom: 67%;" />
 
-## Step 1: Use the Dapr input binding in the TrafficControlService
+## Step 1: Run the SMTP server
 
-You will add code to the TrafficControlService to use the Dapr input MQTT binding to receive entry- and exit-cam messages:
+In this assignment, you will use [MailDev](https://github.com/maildev/maildev) as your SMTP server. 
+This is a development SMTP server that doesn't actually send out emails (by default), 
+but collects them and shows them in an inbox type web application it has built-in. 
+This is extremely handy in test or demo scenarios.
 
-1. Open the file `traffic-control-service/internal/traffic_control/http/handlers.go` in VS Code.
+You will run this server as a Docker container:
 
-1. Inspect the `VehicleEntry` and `VehicleExit` methods.
+1. Open the terminal window in VS Code.
 
-And you're done! That's right, you don't need to change anything in order to use an input binding. The thing is that the binding will invoke exposed API endpoints based on the name of the binding, which you will specify in the component configuration in one the next steps. As far as the TrafficControlService is concerned, it will just be called over HTTP and it has no knowledge of Dapr bindings.
-
-## Step 2: Run the Mosquitto MQTT broker
-
-You will use [Mosquitto](https://mosquitto.org/), a lightweight MQTT broker, as the MQTT broker between the simulation and the TrafficControlService. You will run Mosquitto in a Docker container.
-
-In order to connect to Mosquitto, you need to pass in a custom configuration file when starting it. You will create a Docker image that contains the configuration file for the workshop. The folder `Infrastructure/mosquitto` already contains the correct config file you can use.
-
-1. Open the terminal window in VS Code and make sure the current folder is `Infrastructure/mosquitto`.
-
-1. Create the custom Docker image by entering the following command:
+1. Start a MailDev SMTP server by entering the following command:
 
    ```console
-   docker build -t dapr-trafficcontrol/mosquitto:1.0 .
+   docker run -d -p 1080:1080 -p 1025:1025 --name dtc-maildev maildev/maildev
    ```
 
-1. Check whether the image was created successfully by entering the following command:
+This will pull the docker image `maildev/maildev:1.1.0` from Docker Hub and start it. The name of the container will
+be `dtc-maildev`. The server will be listening for connections on port `1025` for SMTP traffic and port `1080` for HTTP
+traffic. This last port is where the inbox web app will run for inspecting the emails.
 
-   ```console
-   docker images
-   ```
+If everything goes well, you should see some output like this:
 
-   You should see that the image is available on your machine:
+```console
+❯ docker run -d -p 1080:1080 -p 1025:1025 --name dtc-maildev maildev/maildev
+Unable to find image 'maildev/maildev:1.1.0' locally
+1.1.0: Pulling from maildev/maildev
+e6b0cf9c0882: Pull complete
+93f9cf0467ca: Pull complete
+a564402f98da: Pull complete
+b68680f1d28f: Pull complete
+d83a90929b44: Pull complete
+5bb08f80fc87: Pull complete
+021ced319bab: Pull complete
+7a42c2dca0ef: Pull complete
+Digest: sha256:9ae76db9e72ad3c41a34ffcc327bbd3525849a161d257888f41a8dc4262ec73f
+Status: Downloaded newer image for maildev/maildev:1.1.0
+b4214ffff2e7624eac3fa3f71bb6b59a1902c9277c9f1dcf5a0742f0807a085f
+```
 
-   ```console
-   REPOSITORY                          TAG      IMAGE ID      CREATED       SIZE
-   dapr-trafficcontrol/mosquitto:1.0   latest   3875762720a9  2 hours       9.95MB
-   ```
-
-1. Start a Mosquitto MQTT broker by entering the following command:
-
-   ```console
-   docker run -d -p 1883:1883 -p 9001:9001 --name dtc-mosquitto dapr-trafficcontrol/mosquitto:1.0
-   ```
-
-This will start a container based on the `dapr-trafficcontrol/mosquitto:1.0` image. The name of the container will be 
-`dtc-mosquitto`. The server will be listening for connections on ports `1883` and `9001` for MQTT traffic.
+> If you see any errors, make sure you have access to the Internet and are able to download images from Docker Hub.
+See [Docker Hub](https://hub.docker.com/) for more info.
 
 The container will keep running in the background. If you want to stop it, enter the following command:
 
 ```console
-docker stop dtc-mosquitto
+docker stop dtc-maildev
 ```
 
 You can then start the container later by entering the following command:
 
 ```console
-docker start dtc-mosquitto
+docker start dtc-maildev
 ```
 
 If you are done using the container, you can also remove it by entering the following command:
 
 ```console
-docker rm dtc-mosquitto -f
+docker rm dtc-maildev -f
 ```
 
 Once you have removed it, you need to start it again with the `docker run` command shown at the beginning of this step.
 
-> For your convenience, the `Infrastructure` folder contains Powershell scripts for starting the infrastructural 
-> components you'll use throughout the workshop. You can use the `Infrastructure/mosquitto/start-mosquitto.sh` script to start the Mosquitto container.
+> For your convenience, the `infrastructure` folder contains Powershell scripts for starting the infrastructural
+> components you'll use throughout the workshop. You can use the `infrastructure/maildev/start-maildev.sh` script to
+> start the MailDev container.
 >
-> If you don't mind starting all the infrastructural containers at once, you can also use the `Infrastructure/start-all.sh` script.
+> If you don't mind starting all the infrastructural containers at once (also for assignments to come), you can also
+> use the `infrastructure/start-all.sh` script.
 
-## Step 3: Configure the input binding
+## Step 2: Use the Dapr output binding in the FineCollectionService
 
-In this step you will add a Dapr binding component configuration file to the custom components folder you created in Assignment 3.
+You will add code to the FineCollectionService so it uses the Dapr SMTP output binding to send an email:
 
-1. Add a new file in the `dapr/components` folder named `entrycam.yaml`.
+1. Open the file `fine-collection-service/internal/fine_collection/email_service.go` in VS Code.
 
-1. Open the file in VS Code.
+1. Add `SendMail` method to `EmailService` interface
 
-1. Paste this snippet into the file:
+```go
+SendMail(speedingViolation models.SpeedingViolation,
+   vehicleInfo models.VehicleInfo,
+   fine string) error
+```
 
-   ```yaml
-   apiVersion: dapr.io/v1alpha1
-   kind: Component
-   metadata:
-     name: entrycam
-     namespace: dapr-trafficcontrol
-   spec:
-     type: bindings.mqtt
-     version: v1
-     metadata:
-     - name: url
-       value: mqtt://localhost:1883
-     - name: topic
-       value: trafficcontrol/entrycam
-     - name: consumerID
-       value: "{uuid}"
-   scopes:
-     - trafficcontrolservice
+1. Open the file `fine-collection-service/internal/fine_collection/services/default_email_service.go` in VS Code.
+
+1. Add `MessageData` for sending data to Dapr SMTP binding
+
+```go
+type MessageMetadata struct {
+	Subject   string `json:"subject"`
+	EmailTo   string `json:"emailTo"`
+	EmailFrom string `json:"emailFrom"`
+}
+type MessageData struct {
+	Data      string          `json:"data"`
+	Operation string          `json:"operation"`
+	Metadata  MessageMetadata `json:"metadata"`
+}
+```
+
+1. Add `MailData` struct for binding speed violation data to email template that we will create later on
+
+```go
+type MailData struct {
+	Now            time.Time
+	OwnerName      string
+	VehicleId      string
+	Brand          string
+	Model          string
+	RoadId         string
+	Timestamp      time.Time
+	ViolationInKmh int
+	Fine           string
+}
+```
+
+1. Add `ParseTemplate` method to parse email template in HTML and transfer `MailData` data into it to generate email body
+
+```go
+func ParseTemplate(templateFileName string, data interface{}) (string, error) {
+	t, err := template.ParseFiles(templateFileName)
+	if err != nil {
+		return "", fmt.Errorf("ParseTemplate: parse files error: %w", err)
+	}
+
+	buf := new(bytes.Buffer)
+
+	if err = t.Execute(buf, data); err != nil {
+		return "", fmt.Errorf("ParseTemplate: execute template error: %w", err)
+	}
+
+	return buf.String(), nil
+}
+```
+
+1. Implement `SendMail` to generate email body and send to Dapr SMTP by HTTP post request
+
+```go
+func (e defaultEmailService) SendMail(speedingViolation models.SpeedingViolation,
+	vehicleInfo models.VehicleInfo,
+	fine string) error {
+
+   // generate mail data from speeding violation, vehicle information and fine value
+	mailData := MailData{
+		Now:            time.Now(),
+		OwnerName:      vehicleInfo.OwnerName,
+		VehicleId:      vehicleInfo.VehicleId,
+		Brand:          vehicleInfo.Brand,
+		Model:          vehicleInfo.Model,
+		RoadId:         speedingViolation.RoadId,
+		Timestamp:      speedingViolation.Timestamp,
+		ViolationInKmh: speedingViolation.ViolationInKmh,
+		Fine:           fine,
+	}
+
+   //generate mail body
+	mailBody, err := ParseTemplate("templates/email.html", mailData)
+
+	if err != nil {
+		return err
+	}
+
+   // create message for sending to Dapr SMTP binding
+	messageData := MessageData{
+		Data:      mailBody,
+		Operation: "create",
+		Metadata: MessageMetadata{
+			Subject:   "Fine for exceeding the speed limit.",
+			EmailTo:   vehicleInfo.OwnerEmail,
+			EmailFrom: "test@domain.org",
+		},
+	}
+
+	messageJson, err := json.Marshal(messageData)
+	if err != nil {
+
+		return fmt.Errorf("SendMail encode json error: %v", err)
+	}
+
+	resp, err := http.Post("http://localhost:3601/v1.0/bindings/sendmail", "application/json", bytes.NewBuffer(messageJson))
+
+	if err != nil {
+		return fmt.Errorf("SendMail create http request Dapr binding sendmail error: %v", err)
+	}
+
+	defer resp.Body.Close()
+
+	return nil
+}
+```
+
+1. You can see the email template in folder `fine-collection-service/templates/email.html` in `assignment5` branch.
+
+1. Open the file `fine-collection-service/internal/fine_collection/http/handlers.go` in VS Code.
+
+1. Inspect the code of the `CollectFine` method. There's a TODO comment at the end of the method. You'll
+   add code to complete this TODO and actually send an email.
+
+1. Add the following code to the `CollectFine` method to replace the TODO comment:
+
+   ```go
+   // send fine by email
+   err = h.emailService.SendMail(speedingViolation, vehicleInfo, fineString)
+   if err != nil {
+      h.logger.Error(err)
+   }
    ```
 
-   As you can see, you specify the binding type MQTT (`bindings.mqtt`) and you specify in the `metadata` how to connect to the Mosquitto server container you started in step 2 (running on localhost on port `1883`). Also the topic to use is configured in metadata: `trafficcontrol/entrycam`. When a MQTT topic is subscribed on by multiple consumers, each consumer must specify a unique consumer Id. You can specify this with the `consumerId` field in the `metadata`. Dapr automatically replaces the value `"{uuid}"` with a unique Id. In the `scopes` section, you specify that only the TrafficControlService should subscribe to the MQTT topic.
+   First, we create the message data containing the subject, sender, body, and recipient of the message.
+   The message data also contains information about the operation that we want to invoke on the binding.
+   Finally, we invoke the sendemail binding to send the message to the vehicle owner.
 
-Important to note with bindings is the `name` of the binding. This name must be the same as the URI of the API endpoint
-you want to be called on your service. In your case this is `/entrycam`.
+That's it, that's all the code you need to write to send an email over SMTP.  
 
-Now you need to also add an input binding for the `/exitcam` operation:
+## Step 3: Configure the output binding
 
-1. Add a new file in the `dapr/components` folder named `exitcam.yaml`.
+In this step you will add a Dapr binding component configuration file to the custom components folder you created in
+Assignment 3.
+
+1. Add a new file in the `dapr/components` folder named `email.yaml`.
 
 1. Open this file in VS Code.
 
@@ -130,134 +241,39 @@ Now you need to also add an input binding for the `/exitcam` operation:
    apiVersion: dapr.io/v1alpha1
    kind: Component
    metadata:
-     name: exitcam
-     namespace: dapr-trafficcontrol
+     name: sendmail
    spec:
-     type: bindings.mqtt
+     type: bindings.smtp
      version: v1
      metadata:
-     - name: url
-       value: mqtt://localhost:1883
-     - name: topic
-       value: trafficcontrol/exitcam
-     - name: consumerID
-       value: "{uuid}"
+     - name: host
+       value: localhost
+     - name: port
+       value: 1025
+     - name: user
+       value: "_username"
+     - name: password
+       value: "_password"
+     - name: skipTLSVerify
+       value: true
    scopes:
-     - trafficcontrolservice
+     - finecollectionservice
    ```
 
-Now your input bindings are configured and it's time to change the Camera Simulation so it will send MQTT messages to Mosquitto.
+As you can see, you specify the binding type SMTP (`bindings.smtp`) and you specify in the `metadata` how to connect to
+the SMTP server container you started in step 1 (running on localhost on port `1025`). The other metadata can be
+ignored for now.
 
-## Step 4: Send MQTT messages from the Camera Simulation
+Important to notice with bindings is the `name` of the binding. This name must be the same as the name used in the call
+to the bindings API as you did in the code in step 2:
 
-In this step you change the Camera Simulation so it sends MQTT messages instead of doing HTTP requests:
+```go
+resp, err := http.Post("http://localhost:3601/v1.0/bindings/sendmail", 
+  "application/json", 
+  bytes.NewBuffer(messageJson))
+```
 
-1. Open the terminal window in VS Code and make sure the current folder is `Simulation`.
-
-1. Add a dependency to the Simulation executing the following command in your terminal:
-
-    ```console
-    go get github.com/eclipse/paho.mqtt.golang
-    ```
-
-1. Open the file `simulation/internal/proxies/default_service.go` file in VS Code.
-
-1. Inspect the code in this file.
-
-   This file contains the client that talks to the traffic control service to simulate entry and exit camera events.
-   We're going to replace the contents of the `SendVehicleEntry` and `SendVehicleExit` methods to use the MQTT broker
-   instead of the HTTP endpoint.
-
-1. Add MQTT Client adapter to keep connection to server
-
-   ```go
-   type defaultService struct {
-     messagingAdapter mqtt.Client
-   }
-   ```
-
-1. Add MQTT Client adapter to factory constructor 
-
-   ```go
-   func NewService(messagingAdapter mqtt.Client) tc.Service {
-	  return &defaultService{messagingAdapter: messagingAdapter}
-   }
-   ```
-
-1. Replace the content of the `SendVehicleEntry` method with the following code:
-
-   ```go
-   var err error
-
-	data, err := json.Marshal(vehicleRegistered)
-	if err != nil {
-	  log.Print(err)
-
-	  return fmt.Errorf("SendVehicleEntry encode json error: %v", err)
-	}
-
-	token := s.messagingAdapter.Publish("trafficcontrol/entrycam", 0, false, data)
-	token.Wait()
-
-	return nil
-   ```
-
-  When the `SendVehicleEntry` method is called it will publish the event data on the the entrycam topic of the 
-  trafficcontrol service that we configured in the input binding.
-
-1. Replace the content of the `SendVehicleExit` method with the following code:
-
-   ```go
-   var err error
-
-	data, err := json.Marshal(vehicleRegistered)
-	if err != nil {
-	  log.Print(err)
-     return fmt.Errorf("SendVehicleExit encode json error: %v", err)
-	}
-
-	token := s.messagingAdapter.Publish("trafficcontrol/exitcam", 0, false, data)
-	token.Wait()
-
-	return nil
-   ```
-
-1. Open the file `simulation/cmd/main.go` file in VS Code.
-
-1. Declare a MQTT client parameter for `startCameraSimulationLane` method
-
-   ```go
-   func startCameraSimulationLane(mqttClient mqtt.Client, camNumber int) {
-	  service := proxies.NewService(mqttClient)
-	  cameraSimulator := simulation.NewSimulator(service, camNumber)
-	  cameraSimulator.Start()
-   }
-   ```
-
-1. Create a MQTT Client instance on the top of `main` function and pass it to `startCameraSimulationLane`
-
-   ```go
-   opts := mqtt.NewClientOptions().AddBroker("tcp://127.0.0.1:1883").SetClientID("simulation")
-	opts.SetKeepAlive(2 * time.Second)
-	opts.SetDefaultPublishHandler(f)
-	opts.SetPingTimeout(1 * time.Second)
-
-	c := mqtt.NewClient(opts)
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
-	}
-
-   for {
-		go startCameraSimulationLane(c, 1)
-		go startCameraSimulationLane(c, 2)
-		go startCameraSimulationLane(c, 3)
-		select {}
-	}
-   ```
-
-Now you're ready to test the application.
-
-## Step 5: Test the application
+## Step 4: Test the application
 
 You're going to start all the services now. You specify the custom components folder you've created on the command-line 
 using the `--components-path` flag so Dapr will use these config files:
@@ -314,35 +330,17 @@ using the `--components-path` flag so Dapr will use these config files:
    go run ./cmd/main.go
    ```
 
-You should see the same logs as before.
+You should see the same logs as before. But now you should also be able to see the fine emails being sent by the
+FineCollectionService:
 
-If you want to know for sure that Mosquitto is used for communication, watch the logs of the Mosquitto server by executing the following command:
-
-```console
-docker logs dtc-mosquitto
-```
-
-You should see connections being made to the server:
-
-```console
-❯ docker logs dtc-mosquitto
-1631735130: mosquitto version 2.0.12 starting
-1631735130: Config loaded from /mosquitto/config/mosquitto.conf.
-1631735130: Opening ipv4 listen socket on port 1883.
-1631735130: Opening ipv6 listen socket on port 1883.
-1631735130: mosquitto version 2.0.12 running
-1631735150: New connection from 172.17.0.1:37348 on port 1883.
-1631735150: New connection from 172.17.0.1:37350 on port 1883.
-1631735150: New client connected from 172.17.0.1:37350 as simulation (p2, c1, k60).
-1631735150: Client simulation already connected, closing old connection.
-1631735150: New client connected from 172.17.0.1:37348 as simulation (p2, c1, k60).
-1631735150: New connection from 172.17.0.1:37356 on port 1883.
-1631735150: Client simulation already connected, closing old connection.
-1631735150: New client connected from 172.17.0.1:37356 as simulation (p2, c1, k60).
-```
+1. Open a browser and browse to [http://localhost:1080](http://localhost:1080).
+1. Wait for the first emails to come in.
+1. Click on an email in the inbox to see its content:
+   <img src="../img/inbox.png" style="zoom:67%;" />
 
 ## Next assignment
 
-Make sure you stop all running processes and close all the terminal windows in VS Code before proceeding to the next assignment.
+Make sure you stop all running processes and close all the terminal windows in VS Code before proceeding to the next
+assignment.
 
-Go to [assignment 7](../Assignment07/README.md).
+Go to [assignment 6](../Assignment06/README.md).
