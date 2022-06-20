@@ -16,10 +16,11 @@ pushd ${basedir}/maildev
 popd
 
 # dapr uninstall --network dapr-network
-podman stop dapr_zipkin
-podman stop dapr_redis
+docker stop dapr_zipkin
+docker stop dapr_redis
 
-podman rm dapr_zipkin
-podman rm dapr_redis
+docker rm dapr_zipkin
+docker rm dapr_redis
 
-# podman network rm dapr-network
+dapr uninstall
+# docker network rm dapr-network

@@ -17,6 +17,6 @@ pushd ${basedir}/maildev
 popd
 
 # arch -arm64 podman network create dapr-network
-arch -arm64 podman run --name "dapr_zipkin" --restart always -d -p 9411:9411 openzipkin/zipkin 
-arch -arm64 podman run --name "dapr_redis"  --restart always -d -p 6379:6379 redis
+arch -arm64 docker run --name "dapr_zipkin" --restart always -d -p 9411:9411 openzipkin/zipkin 
+arch -arm64 docker run --name "dapr_redis"  --restart always -d -p 6379:6379 redis
 arch -arm64 dapr init --slim
