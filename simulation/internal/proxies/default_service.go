@@ -1,22 +1,21 @@
 package proxies
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
 	tc "dapr-workshop-go/simulation/internal"
 	"dapr-workshop-go/simulation/internal/events"
-
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 type defaultService struct {
-	messagingAdapter mqtt.Client
 }
 
-func NewService(messagingAdapter mqtt.Client) tc.Service {
-	return &defaultService{messagingAdapter: messagingAdapter}
+func NewService() tc.Service {
+	return &defaultService{}
 }
 
 func (s *defaultService) SendVehicleEntry(vehicleRegistered events.VehicleRegistered) error {
@@ -29,8 +28,15 @@ func (s *defaultService) SendVehicleEntry(vehicleRegistered events.VehicleRegist
 		return fmt.Errorf("SendVehicleEntry encode json error: %v", err)
 	}
 
-	token := s.messagingAdapter.Publish("trafficcontrol/entrycam", 0, false, data)
-	token.Wait()
+	resp, err := http.Post("http://localhost:6000/entrycam", "application/json", bytes.NewBuffer(data))
+
+	if err != nil {
+		log.Print(err)
+
+		return fmt.Errorf("SendVehicleEntry create http request entrycam error: %v", err)
+	}
+
+	defer resp.Body.Close()
 
 	return nil
 }
@@ -45,8 +51,15 @@ func (s *defaultService) SendVehicleExit(vehicleRegistered events.VehicleRegiste
 		return fmt.Errorf("SendVehicleExit encode json error: %v", err)
 	}
 
-	token := s.messagingAdapter.Publish("trafficcontrol/exitcam", 0, false, data)
-	token.Wait()
+	resp, err := http.Post("http://localhost:6000/exitcam", "application/json", bytes.NewBuffer(data))
+
+	if err != nil {
+		log.Print(err)
+
+		return fmt.Errorf("SendVehicleExit send http entrycam error: %v", err)
+	}
+
+	defer resp.Body.Close()
 
 	return nil
 }
