@@ -16,8 +16,9 @@ func NewEmailService(logger logger.Logger) finecollection.EmailService {
 	}
 }
 
-func (e defaultEmailService) CreateEmailBody(speedingViolation models.SpeedingViolation,
+func (e defaultEmailService) SendMail(speedingViolation models.SpeedingViolation,
 	vehicleInfo models.VehicleInfo,
-	fine string) string {
-	return ""
+	fine string) error {
+
+	return nil
 }

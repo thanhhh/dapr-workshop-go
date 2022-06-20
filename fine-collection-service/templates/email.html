@@ -60,9 +60,9 @@
             <h4 class='logo-name'>Central Fine Collection Agency</h4>
             <div class='logo-bar'>&nbsp;</div>
         </div>
-        <p>The Hague, {DateTime.Now.ToLongDateString()}</p>
+        <p>The Hague, {{ .Now.Format "January 02, 2006 15:04:05" }}</p>
         
-        <p>Dear Mr. / Miss / Mrs. {vehicleInfo.OwnerName},</p>
+        <p>Dear Mr. / Miss / Mrs. {{ .OwnerName }},</p>
         
         <p>We hereby inform you of the fact that a speeding violation was detected with a 
         vehicle that is registered to you.</p>
@@ -76,25 +76,25 @@
         <p>
             <b>Vehicle information:</b>
             <table>
-                <tr><th>License number</th><td>{vehicleInfo.VehicleId}</td></tr>
-                <tr><th>Brand</th><td>{vehicleInfo.Brand}</td></tr>
-                <tr><th>Model</th><td>{vehicleInfo.Model}</td></tr>
+                <tr><th>License number</th><td>{{.VehicleId}}</td></tr>
+                <tr><th>Brand</th><td>{{.Brand}}</td></tr>
+                <tr><th>Model</th><td>{{.Model}}</td></tr>
             </table>
         </p>
         <p>
             <b>Conditions during the violation:</b>
             <table>
-                <tr><th>Road</th><td>{speedingViolation.RoadId}</td></tr>
-                <tr><th>Date</th><td>{speedingViolation.Timestamp.ToString("dd-MM-yyyy")}</td></tr>
-                <tr><th>Time of day</th><td>{speedingViolation.Timestamp.ToString("hh:mm:ss")}</td></tr>
+                <tr><th>Road</th><td>{{ .RoadId }}</td></tr>
+                <tr><th>Date</th><td>{{ .Timestamp.Format "Jan 02, 2006" }}</td></tr>
+                <tr><th>Time of day</th><td>{{ .Timestamp.Format "15:04:05" }}</td></tr>
             </table>							
         </p>
         
         <p>
             <b>Sanction:</b>
             <table>
-                <tr><th>Maximum speed violation</th><td>{speedingViolation.ViolationInKmh} KMh</td></tr>
-                <tr><th>Sanction amount</th><td><div class='fine'>{fine}</div></td></tr>
+                <tr><th>Maximum speed violation</th><td>{{ .ViolationInKmh }} KMh</td></tr>
+                <tr><th>Sanction amount</th><td><div class='fine'>{{ .Fine }}</div></td></tr>
             </table>							
         </p>		
         <hr/>
