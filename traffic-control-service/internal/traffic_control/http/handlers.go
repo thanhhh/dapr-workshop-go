@@ -95,13 +95,13 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 			vehicleState.EntryTimestamp, vehicleState.ExitTimestamp)
 
 		if violation > 0 {
-			h.logger.Info(
+			h.logger.Infof(
 				"Speeding violation detected (%d KMh) of vehicle with license-number %s.",
 				violation,
 				vehicleState.LicenseNumber)
 
 			speedingViolation := models.SpeedingViolation{
-				LicenseNumber:  message.LicenseNumber,
+				VehicleId:      message.LicenseNumber,
 				RoadId:         h.service.GetRoadId(),
 				ViolationInKmh: violation,
 				Timestamp:      message.Timestamp,
@@ -112,11 +112,8 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 				h.logger.Error(err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
-			req, err := http.NewRequest("POST", "http://localhost:6001/collectfine", bytes.NewBuffer(data))
-			req.Header.Set("Content-Type", "application/json")
+			resp, err := http.Post("http://localhost:6001/collectfine", "application/json", bytes.NewBuffer(data))
 
-			client := &http.Client{}
-			resp, err := client.Do(req)
 			if err != nil {
 				h.logger.DPanic(err)
 

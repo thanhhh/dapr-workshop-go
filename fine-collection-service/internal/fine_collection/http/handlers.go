@@ -58,6 +58,12 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 			h.cfg.LicenseKey.FineCalculatorLicenseKey,
 			speedingViolation.ViolationInKmh)
 
+		if err != nil {
+			h.logger.Error(err)
+			return c.JSON(http.StatusBadRequest, errors.NewBadRequestError(
+				fmt.Sprintf("Calculate find error for vehicle id %s", speedingViolation.VehicleId)))
+		}
+
 		if err := utils.ValidateStruct(c.Request().Context(), speedingViolation); err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, err)
@@ -65,7 +71,7 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 
 		// get owner info
 		vehicleInfo, err := h.vehicleService.GetVehicleInfo(speedingViolation.VehicleId)
-
+		h.logger.Infof("%v", vehicleInfo)
 		if err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, errors.NewBadRequestError(
@@ -91,8 +97,8 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 			vehicleInfo.Model,
 			speedingViolation.ViolationInKmh,
 			fineString,
-			speedingViolation.Timestamp.Format("31-12-2021"),
-			speedingViolation.Timestamp.Format("13:59:59"),
+			speedingViolation.Timestamp.Format("Jan 02, 2006"),
+			speedingViolation.Timestamp.Format("15:04:05"),
 		)
 
 		// send fine by email

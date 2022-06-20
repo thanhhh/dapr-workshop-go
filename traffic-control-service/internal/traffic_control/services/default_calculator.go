@@ -28,8 +28,8 @@ func NewSpeedingViolationCalculator(
 }
 
 func (d defaultSpeedingViolationCalculator) DetermineSpeedingViolationInKmh(entryTimestamp time.Time, exitTimestamp time.Time) int {
-	elapsedMinutes := exitTimestamp.Sub(entryTimestamp).Seconds()
-	avgSpeedInKmh := math.Round((float64(d.sectionLengthInKm) / elapsedMinutes) * 60)
+	elapsedSeconds := exitTimestamp.Sub(entryTimestamp).Seconds()
+	avgSpeedInKmh := math.Round((float64(d.sectionLengthInKm) / elapsedSeconds) * 60)
 	violation := int(avgSpeedInKmh - float64(d.maxAllowedSpeedInKmh) - float64(d.legalCorrectInKmh))
 	return violation
 }
