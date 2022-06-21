@@ -14,6 +14,9 @@ func main() {
 		go startCameraSimulationLane(1)
 		go startCameraSimulationLane(2)
 		go startCameraSimulationLane(3)
+		go startCameraSimulationLane(4)
+		go startCameraSimulationLane(5)
+		go startCameraSimulationLane(6)
 		select {}
 	}
 }

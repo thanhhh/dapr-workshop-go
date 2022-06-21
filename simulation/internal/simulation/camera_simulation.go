@@ -19,8 +19,8 @@ type cameraSimulation struct {
 const (
 	minEntryDelayInMS = 50
 	maxEntryDelayInMS = 5000
-	minExitDelayInS   = 4
-	maxExitDelayInS   = 10
+	minExitDelayInS   = 12
+	maxExitDelayInS   = 30
 )
 
 var (
