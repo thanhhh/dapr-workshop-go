@@ -143,4 +143,4 @@ Make sure you stop all running processes and close all the terminal windows in V
 assignment. Stopping a service or the simulation is done by pressing `Ctrl-C` in the terminal window. To close the
 terminal window, enter the `exit` command.
 
-Go to [assignment 2](../Assignment02/README.md).
+Go to [assignment 2](../Assignment02/step-by-step-golang.md).
