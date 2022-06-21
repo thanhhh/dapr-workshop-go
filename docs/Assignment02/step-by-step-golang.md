@@ -90,9 +90,9 @@ First you're going to change the code so it calls the Dapr sidecar:
 
    ```go
    func (p *defaultVehicleInfoService) GetVehicleInfo(licenseNumber string) (models.VehicleInfo, error) {
-   	vehicleInfo := models.VehicleInfo{}
+     vehicleInfo := models.VehicleInfo{}
    
-   	url := fmt.Sprintf("http://localhost:3601/v1.0/invoke/vehicleregistrationservice/method/vehicleinfo/%s", licenseNumber)
+     url := fmt.Sprintf("http://localhost:3601/v1.0/invoke/vehicleregistrationservice/method/vehicleinfo/%s", vehicleId)
      // ...
    }
    ```

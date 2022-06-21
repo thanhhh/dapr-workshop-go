@@ -1,6 +1,7 @@
 package proxies
 
 import (
+	"context"
 	fc "dapr-workshop-go/fine-collection-service/internal/fine_collection"
 	"dapr-workshop-go/fine-collection-service/internal/models"
 	"dapr-workshop-go/pkg/logger"
@@ -18,10 +19,11 @@ func NewProxy(logger logger.Logger) fc.VehicleInfoService {
 	return &defaultVehicleInfoService{logger: logger}
 }
 
-func (p *defaultVehicleInfoService) GetVehicleInfo(vehicleId string) (models.VehicleInfo, error) {
+func (p *defaultVehicleInfoService) GetVehicleInfo(
+	ctx context.Context, vehicleId string) (models.VehicleInfo, error) {
 	vehicleInfo := models.VehicleInfo{}
 
-	url := fmt.Sprintf("http://127.0.0.1:6002/vehicleinfo/%s", vehicleId)
+	url := fmt.Sprintf("http://localhost:3601/v1.0/invoke/vehicleregistrationservice/method/vehicleinfo/%s", vehicleId)
 
 	resp, err := http.Get(url)
 	if err != nil {
