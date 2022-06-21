@@ -15,7 +15,7 @@ This assignment targets number **1** in the end-state setup:
 
 In assignment 1, you started all the services using `go run ./cmd/main.go`. When you want to run a service with a Dapr sidecar that handles its communication, you need to start it using the Dapr CLI. There are a couple of things you need to specify when starting the service:
 
-- The service needs a unique id which Dapr can use to find it. This is called the *app-id* (or application Id). You specify this with the `--app-id` flag on the command-line.
+- The service needs a unique id which Dapr can use to find it. This is called the _app-id_ (or application Id). You specify this with the `--app-id` flag on the command-line.
 
 - Each of the services listens on a different HTTP port for requests (to prevent port collisions on localhost). The VehicleRegistrationService runs on port `6002` for instance. You need to tell Dapr this port so the Dapr sidecar can communicate with the service. You specify this with the `--app-port` flag on the command-line.
 
@@ -63,7 +63,7 @@ First you're going to change the code so it calls the Dapr sidecar:
 
    ```go
    // get owner info
-	vehicleInfo, err := h.vehicleService.GetVehicleInfo(speedingViolation.VehicleId)
+   vehicleInfo, err := h.vehicleService.GetVehicleInfo(speedingViolation.VehicleId)
    ```
 
    The `vehicleService` is an instance of a proxy that uses the Golang `net/http` to call the VehicleRegistrationService. You are going to change that proxy so it uses Dapr service invocation.
@@ -91,7 +91,7 @@ First you're going to change the code so it calls the Dapr sidecar:
    ```go
    func (p *defaultVehicleInfoService) GetVehicleInfo(licenseNumber string) (models.VehicleInfo, error) {
      vehicleInfo := models.VehicleInfo{}
-   
+
      url := fmt.Sprintf("http://localhost:3601/v1.0/invoke/vehicleregistrationservice/method/vehicleinfo/%s", vehicleId)
      // ...
    }
@@ -157,7 +157,7 @@ Get Dapr SDK for Go client module:
 import "github.com/dapr/go-sdk/client"
 ```
 
-> The Dapr Go client package contains the `Client` class used to directly invoke the Dapr API as well as additional integrations with Golang. 
+> The Dapr Go client package contains the `Client` class used to directly invoke the Dapr API as well as additional integrations with Golang.
 
 Now you'll change the code to use the Dapr SDK `Client` integration to call the VehicleRegistrationService. The `Dapr SDK Client` integration allows you to keep using the regular `InvokeMethod` to make service calls, while the SDK ensures that calls are routed through the Dapr sidecar.
 
@@ -168,39 +168,42 @@ Now you'll change the code to use the Dapr SDK `Client` integration to call the 
    ```go
    import dapr "github.com/dapr/go-sdk/client"
    ```
+
 1. Open the file `fine-collection-service/internal/fine_collection/vehicle_info_service.go` to define `context` for Dapr Client.
 
    ```go
    type VehicleInfoService interface {
-	  GetVehicleInfo(ctx context.Context, licenseNumber string) (models.VehicleInfo, error)
+    GetVehicleInfo(ctx context.Context, licenseNumber string) (models.VehicleInfo, error)
    }
    ```
+
 1. Open the file `fine-collection-service/internal/fine_collection/proxies/vehicle_info_service.go` to refactoring `GetVehicileInfo` function as well.
 
    ```go
-   func (p *defaultVehicleInfoService) GetVehicleInfo(ctx context.Context, licenseNumber string) (models.VehicleInfo, error) {
-	  vehicleInfo := models.VehicleInfo{}
+   func (p *defaultVehicleInfoService) GetVehicleInfo(
+      ctx context.Context, vehicleId string) (models.VehicleInfo, error) {
+      vehicleInfo := models.VehicleInfo{}
 
-	  daprClient, err := dapr.NewClient()
-	  if err != nil {
-	    log.Panic(err)
-	  }
-	  // defer daprClient.Close()
+      daprClient, err := dapr.NewClient()
+      if err != nil {
+         p.logger.Error(err)
+         return vehicleInfo, fmt.Errorf("create dapr client error %v", err)
+      }
 
-	  methodName := fmt.Sprintf("vehicleinfo/%s", licenseNumber)
-	  resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "get")
+      methodName := fmt.Sprintf("vehicleinfo/%s", vehicleId)
+      resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "get")
 
-	  if err != nil {
-	    p.logger.Error(err)
-		 return vehicleInfo, err
-	  }
+      if err != nil {
+         p.logger.Error(err)
+         return vehicleInfo, fmt.Errorf("invoke method in dapr client error %v", err)
+      }
 
-	  if err := json.Unmarshal(resp, &vehicleInfo); err != nil {
-		 p.logger.Error(err)
-		 return vehicleInfo, err
-	  }
+      if err := json.Unmarshal(resp, &vehicleInfo); err != nil {
+         p.logger.Error(err)
+         return vehicleInfo, fmt.Errorf("decode json vehicle info error %v", err)
+      }
 
-	  return vehicleInfo, nil
+      return vehicleInfo, nil
    }
    ```
 
@@ -216,10 +219,10 @@ Now the FineCollectionService is changed to use the Dapr SDK for Go service invo
 1. Enter the following command to start the changed FineCollectionService again:
 
    ```console
-   dapr run --app-id finecollectionservice 
-            --app-port 6001 
-            --dapr-http-port 3601 
-            --dapr-grpc-port 60001 
+   dapr run --app-id finecollectionservice
+            --app-port 6001
+            --dapr-http-port 3601
+            --dapr-grpc-port 60001
             go run ./cmd/main.go
    ```
 
