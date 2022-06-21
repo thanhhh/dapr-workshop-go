@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.16.0
-	github.com/dapr/go-sdk v1.4.0
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/spf13/viper v1.11.0

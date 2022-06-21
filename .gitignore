@@ -29,4 +29,5 @@ vendor
 
 # Avatars storage directory
 avatars/
-docs/.DS_Store
+
+.DS_Store

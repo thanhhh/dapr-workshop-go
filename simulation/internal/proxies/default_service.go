@@ -28,18 +28,8 @@ func (s *defaultService) SendVehicleEntry(vehicleRegistered events.VehicleRegist
 		return fmt.Errorf("SendVehicleEntry encode json error: %v", err)
 	}
 
-	req, err := http.NewRequest("POST", "http://localhost:6000/entrycam", bytes.NewBuffer(data))
+	resp, err := http.Post("http://localhost:6000/entrycam", "application/json", bytes.NewBuffer(data))
 
-	if err != nil {
-		log.Print(err)
-
-		return fmt.Errorf("SendVehicleEntry create http request entrycam error: %v", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
 	if err != nil {
 		log.Print(err)
 
@@ -61,11 +51,8 @@ func (s *defaultService) SendVehicleExit(vehicleRegistered events.VehicleRegiste
 		return fmt.Errorf("SendVehicleExit encode json error: %v", err)
 	}
 
-	req, err := http.NewRequest("POST", "http://localhost:6000/exitcam", bytes.NewBuffer(data))
-	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.Post("http://localhost:6000/exitcam", "application/json", bytes.NewBuffer(data))
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
 	if err != nil {
 		log.Print(err)
 

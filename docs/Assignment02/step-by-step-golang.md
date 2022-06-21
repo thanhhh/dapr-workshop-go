@@ -33,18 +33,21 @@ You will use the `run` command of the Dapr CLI and specify all the options above
 
 1. Make sure you have started Docker Desktop on your machine and the Dapr CLI and runtime are installed (see the [prerequisites](../README.md#prerequisites)).
 
-2. Open the source code folder in VS Code.
+1. Open the source code folder in VS Code.
 
-3. Open the terminal window in VS Code and make sure the current folder is `vehicle-registration-service`.
+1. Open the terminal window in VS Code and make sure the current folder is `vehicle-registration-service`.
 
-4. Enter the following command to run the VehicleRegistrationService with a Dapr sidecar:
+1. Enter the following command to run the VehicleRegistrationService with a Dapr sidecar:
 
    ```console
-   go build ./cmd/main.go
-   dapr run --app-id vehicleregistrationservice --app-port 6002 --dapr-http-port 3602 --dapr-grpc-port 60002 ./main
+   dapr run --app-id vehicleregistrationservice \
+            --app-port 6002 \
+            --dapr-http-port 3602 \
+            --dapr-grpc-port 60002 \
+            go run ./cmd/main.go
    ```
 
-5. Check the logs for any errors. As you can see, both Dapr as well as application logging is shown as output.
+1. Check the logs for any errors. As you can see, both Dapr as well as application logging is shown as output.
 
 Now you're running a 'Daprized' version of the VehicleRegistrationService. As you might have noticed, you didn't need to change any code for this to work. The VehicleRegistrationService is still just a web API listening for requests. Only now, you've started it with a Dapr sidecar next to it that can communicate with it. This means other services can use Dapr to call this service. This is what you'll do in the next step.
 
@@ -56,7 +59,7 @@ First you're going to change the code so it calls the Dapr sidecar:
 
 1. Open the file `fine-collection-service/internal/fine_collection/http/handlers.go` in VS Code.
 
-2. Inspect the `CollectFine` method. It contains a call to the VehicleRegistrationService to retrieve the vehicle info:
+1. Inspect the `CollectFine` method. It contains a call to the VehicleRegistrationService to retrieve the vehicle info:
 
    ```go
    // get owner info
@@ -65,11 +68,11 @@ First you're going to change the code so it calls the Dapr sidecar:
 
    The `vehicleService` is an instance of a proxy that uses the Golang `net/http` to call the VehicleRegistrationService. You are going to change that proxy so it uses Dapr service invocation.
 
-3. Open the file `fine-collection-service/internal/fine_collection/proxies/vehicle_info_service.go` in VS Code.
+1. Open the file `fine-collection-service/internal/fine_collection/proxies/vehicle_info_service.go` in VS Code.
 
-4. Inspect the `GetVehicleInfo` method. You can see that in the HTTP call, the URL of the VehicleRegistrationService (running on port 6002) is used.
+1. Inspect the `GetVehicleInfo` method. You can see that in the HTTP call, the URL of the VehicleRegistrationService (running on port 6002) is used.
 
-5. The API for calling the Dapr service invocation building block on a Dapr sidecar is:
+1. The API for calling the Dapr service invocation building block on a Dapr sidecar is:
 
    ```http
    http://localhost:<daprPort>/v1.0/invoke/<appId>/method/<method-name>
@@ -83,7 +86,7 @@ First you're going to change the code so it calls the Dapr sidecar:
 
    As you can see in this URL, the FineCollectionService's Dapr sidecar will run on HTTP port `3601`.
 
-6. Replace the URL in the code with the new Dapr service invocation URL. The code should now look like this:
+1. Replace the URL in the code with the new Dapr service invocation URL. The code should now look like this:
 
    ```go
    func (p *defaultVehicleInfoService) GetVehicleInfo(licenseNumber string) (models.VehicleInfo, error) {
@@ -96,33 +99,28 @@ First you're going to change the code so it calls the Dapr sidecar:
 
    > It's important to really grasp the sidecar pattern used by Dapr. In this case, the FineCollectionService calls the VehicleRegistrationService by **calling its own Dapr sidecar**! The FineCollectionService doesn't need to know anymore where the VehicleRegistrationService lives because its Dapr sidecar will take care of that. It will find it based on the `app-id` specified in the URL and call the target service's sidecar.
 
-7. Open a **new** terminal window in VS Code and make sure the current folder is `FineCollectionService`.
+1. Open a **new** terminal window in VS Code and make sure the current folder is `FineCollectionService`.
 
-8. Check all your code-changes are correct by building the code:
-
-   ```console
-   go build cmd/main.go
-   ```
-
-   If you see any warnings or errors, review the previous steps to make sure the code is correct.
-
-9. Enter the following command to run the FineCollectionService with a Dapr sidecar:
+1. Enter the following command to run the FineCollectionService with a Dapr sidecar:
 
    ```console
-   dapr run --app-id finecollectionservice --app-port 6001 --dapr-http-port 3601 --dapr-grpc-port 60001 ./main
+   dapr run --app-id finecollectionservice \
+            --app-port 6001 \
+            --dapr-http-port 3601 \
+            --dapr-grpc-port 60001 \
+            go run ./cmd/main.go
    ```
 
-10. Check the logs for any errors. As you can see, both Dapr as well as application logging is shown as output.
+1. Check the logs for any errors. As you can see, both Dapr as well as application logging is shown as output.
 
 Now you're going to test the application:
 
 1. Open a **new** terminal window in VS Code and change the current folder to `traffic-control-service`.
 
-2. Enter the following command to run the TrafficControlService:
+1. Enter the following command to run the TrafficControlService:
 
    ```console
-   go build cmd/main.go
-   ./main
+   go run ./cmd/main.go
    ```
 
 > The TrafficControlService does not need to run with a Dapr sidecar in this assignment. This is because it will still call the FineCollectionService over HTTP as before.
@@ -131,11 +129,10 @@ The services are up & running. Now you're going to test this using the simulatio
 
 1. Open a **new** terminal window in VS Code and change the current folder to `simulation`.
 
-2. Start the simulation:
+1. Start the simulation:
 
    ```console
-   go build cmd/main.go
-   ./main
+   go run ./cmd/main.go
    ```
 
 You should see similar logging as before when you ran the application. So all the functionality works the same, but now you use Dapr service invocation to communicate between the FineCollectionService and the VehicleRegistrationService.
@@ -148,11 +145,11 @@ First stop the simulation:
 
 1. Open the terminal window in VS Code in which the Camera Simulation runs.
 
-2. Stop the simulation by pressing `Ctrl-C` and close the terminal window by clicking the trashcan icon in its title bar (or typing the `exit` command).
+1. Stop the simulation by pressing `Ctrl-C` and close the terminal window by clicking the trashcan icon in its title bar (or typing the `exit` command).
 
-3. Open the terminal window in VS Code in which the FineCollectionService runs.
+1. Open the terminal window in VS Code in which the FineCollectionService runs.
 
-4. Stop the service by pressing `Ctrl-C`. Keep this terminal window open and focused.
+1. Stop the service by pressing `Ctrl-C`. Keep this terminal window open and focused.
 
 Get Dapr SDK for Go client module:
 
@@ -166,19 +163,19 @@ Now you'll change the code to use the Dapr SDK `Client` integration to call the 
 
 1. Open the file `fine-collection-service/internal/fine_collection/proxies/vehicle_info_service.go` in VS Code.
 
-2. Add a import statement in this file to make sure you can use the Dapr client:
+1. Add a import statement in this file to make sure you can use the Dapr client:
 
    ```go
    import dapr "github.com/dapr/go-sdk/client"
    ```
-3. Open the file `fine-collection-service/internal/fine_collection/vehicle_info_service.go` to define `context` for Dapr Client.
+1. Open the file `fine-collection-service/internal/fine_collection/vehicle_info_service.go` to define `context` for Dapr Client.
 
    ```go
    type VehicleInfoService interface {
 	  GetVehicleInfo(ctx context.Context, licenseNumber string) (models.VehicleInfo, error)
    }
    ```
-4. Open the file `fine-collection-service/internal/fine_collection/proxies/vehicle_info_service.go` to refactoring `GetVehicileInfo` function as well.
+1. Open the file `fine-collection-service/internal/fine_collection/proxies/vehicle_info_service.go` to refactoring `GetVehicileInfo` function as well.
 
    ```go
    func (p *defaultVehicleInfoService) GetVehicleInfo(ctx context.Context, licenseNumber string) (models.VehicleInfo, error) {
@@ -214,18 +211,16 @@ Now the FineCollectionService is changed to use the Dapr SDK for Go service invo
 
 1. If you followed the instructions in this assignment, the VehicleRegistrationService and TrafficControlService are still running.
 
-2. Open the terminal window in VS Code in which the FineCollectionService was running.
+1. Open the terminal window in VS Code in which the FineCollectionService was running and terminate the current process.
 
-3. Rebuild FineCollectionService service:
-
-   ```console
-   go build cmd/main.go
-   ```
-
-4. Enter the following command to start the changed FineCollectionService again:
+1. Enter the following command to start the changed FineCollectionService again:
 
    ```console
-   dapr run --app-id finecollectionservice --app-port 6001 --dapr-http-port 3601 --dapr-grpc-port 60001 ./main
+   dapr run --app-id finecollectionservice 
+            --app-port 6001 
+            --dapr-http-port 3601 
+            --dapr-grpc-port 60001 
+            go run ./cmd/main.go
    ```
 
 The services are up & running. Now you're going to test this using the simulation.
@@ -235,7 +230,7 @@ The services are up & running. Now you're going to test this using the simulatio
 1. Start the simulation:
 
    ```console
-   ./main
+   go run ./cmd/main.go
    ```
 
 You should see similar logging as before when you ran the application.
@@ -260,4 +255,4 @@ So how can you check whether or not the call to the VehicleRegistrationService i
 
 Make sure you stop all running processes and close all the terminal windows in VS Code before proceeding to the next assignment.
 
-Go to [assignment 3](../Assignment03/README.md).
+Go to [assignment 3](../Assignment03/step-by-step-golang.md).

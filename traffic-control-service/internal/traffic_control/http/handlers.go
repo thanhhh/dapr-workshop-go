@@ -112,15 +112,8 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 				h.logger.Error(err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
-			req, err := http.NewRequest("POST", "http://localhost:6001/collectfine", bytes.NewBuffer(data))
-			req.Header.Set("Content-Type", "application/json")
+			resp, err := http.Post("http://localhost:6001/collectfine", "application/json", bytes.NewBuffer(data))
 
-			if err != nil {
-				h.logger.DPanic(err)
-			}
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
 			if err != nil {
 				h.logger.DPanic(err)
 
