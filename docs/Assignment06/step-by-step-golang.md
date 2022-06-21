@@ -168,6 +168,16 @@ In this step you change the Camera Simulation so it sends MQTT messages instead 
    We're going to replace the contents of the `SendVehicleEntry` and `SendVehicleExit` methods to use the MQTT broker
    instead of the HTTP endpoint.
 
+1. Import MQTT Client
+
+   ```go
+   import (
+     //... 
+     mqtt "github.com/eclipse/paho.mqtt.golang"
+     //...
+   )
+   ```
+
 1. Add MQTT Client adapter to keep connection to server
 
    ```go
@@ -184,7 +194,7 @@ In this step you change the Camera Simulation so it sends MQTT messages instead 
    }
    ```
 
-1. Replace the content of the `SendVehicleEntry` method with the following code:
+1. Replace the code of the `SendVehicleEntry` method with the following code:
 
    ```go
    var err error
@@ -224,6 +234,16 @@ In this step you change the Camera Simulation so it sends MQTT messages instead 
 
 1. Open the file `simulation/cmd/main.go` file in VS Code.
 
+1. Import MQTT Client
+
+   ```go
+   import (
+     //... 
+     mqtt "github.com/eclipse/paho.mqtt.golang"
+     //...
+   )
+   ```
+
 1. Declare a MQTT client parameter for `startCameraSimulationLane` method
 
    ```go
@@ -239,7 +259,6 @@ In this step you change the Camera Simulation so it sends MQTT messages instead 
    ```go
    opts := mqtt.NewClientOptions().AddBroker("tcp://127.0.0.1:1883").SetClientID("simulation")
 	opts.SetKeepAlive(2 * time.Second)
-	opts.SetDefaultPublishHandler(f)
 	opts.SetPingTimeout(1 * time.Second)
 
 	c := mqtt.NewClient(opts)
