@@ -323,24 +323,28 @@ The other way of subscribing to pub/sub events is the programmatic way. Dapr wil
 
    ```go
    type Subscription struct {
-      pubsubname string
-      topic      string
-      route      string
+	   Pubsubname string `json:"pubsubname"`
+	   Topic      string `json:"topic"`
+	   Route      string `json:"route"`
    }
    ```
 
-4. Add a new method `subscribe` to the routers' handlers that will listen to the route `/dapr/subscribe`:
+4. In the `MapRoutes` method, add a new router `subscribe` to the routers handlers that will listen on `/dapr/subscribe` endpoint:
 
    ```go
-   commGroup.GET("dapr/subcribe", func(c echo.Context) error {
-		subscription := &Subscription{
-			pubsubname: "pubsub",
-			topic:      "speedingviolations",
-			route:      "/collectfine",
-		}
+   func MapRoutes(commGroup *echo.Group, h fc.Handlers) {
+     commGroup.POST("collectfine", h.CollectFine())
 
-		return c.JSONPretty(http.StatusOK, subscription, "")
-	})
+     commGroup.GET("dapr/subcribe", func(c echo.Context) error {
+       subscription := &Subscription{
+         Pubsubname: "pubsub",
+         Topic:      "speedingviolations",
+         Route:      "/collectfine",
+       }
+
+       return c.JSONPretty(http.StatusOK, subscription, "")
+     })
+   }
    ```
 
 5. Remove the file `dapr/components/subscription.yaml`. This file is not needed anymore because you implemented the `/dapr/subscribe` endpoint that we just added to the application.
