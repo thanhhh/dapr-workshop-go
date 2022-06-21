@@ -112,7 +112,10 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 				h.logger.Error(err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
-			resp, err := http.Post("http://localhost:6001/collectfine", "application/json", bytes.NewBuffer(data))
+			resp, err := http.Post(
+				"http://localhost:3600/v1.0/publish/pubsub/speedingviolations", 
+				"application/json", 
+				bytes.NewBuffer(data))
 
 			if err != nil {
 				h.logger.DPanic(err)
