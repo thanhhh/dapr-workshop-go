@@ -370,33 +370,30 @@ In this step, you will change the code slightly so it uses the Dapr SDK for Go. 
 
 1. Open the file `traffic-control-service/internal/traffic_control/http/handlers.go`.
 
-2. Import Dapr SDK for Go client:
+1. Import Dapr SDK for Go client:
 
    ```go
    import dapr "github.com/dapr/go-sdk/client"
    ```
 
-3. Go to near the end of `VehicleExit` function, you will find the code that publishes the `SpeedViolation` message using `http.NewRequest`:
+1. Go to near the end of `VehicleExit` function, you will find the code that publish the `SpeedViolation` message to Dapr sidecar using `http` request and remove them.
 
-   ```go
-   req, err := http.NewRequest("POST", "http://localhost:6001/collectfine", bytes.NewBuffer(data))
-   req.Header.Set("Content-Type", "application/json")
+  ```go
+  data, err := json.Marshal(speedingViolation)
+  if err != nil {
+    h.logger.Error(err)
+    return c.NoContent(http.StatusInternalServerError)
+  }
+  resp, err := http.Post(
+    "http://localhost:3600/v1.0/publish/pubsub/speedingviolations", 
+    "application/json", 
+    bytes.NewBuffer(data))
 
-   if err != nil {
-      h.logger.DPanic(err)
-   }
+  if err != nil {
+    h.logger.DPanic(err)
+  ```
 
-   client := &http.Client{}
-   resp, err := client.Do(req)
-   if err != nil {
-      h.logger.DPanic(err)
-
-      return c.NoContent(http.StatusInternalServerError)
-   }
-   defer resp.Body.Close()
-   ```
-
-4. Replace above code with a call to the Dapr pub/sub building block using DaprClient:
+1. Replace with the code using Dapr client SDK for Golang
 
    ```go
    client, err := dapr.NewClient()
@@ -406,16 +403,16 @@ In this step, you will change the code slightly so it uses the Dapr SDK for Go. 
    }
 
    ctx := context.Background()
-   if err := client.PublishEvent(ctx, "pubsub", "speedingviolations", data); err != nil {
+   if err := client.PublishEvent(ctx, "pubsub", "speedingviolations", speedingViolation); err != nil {
       h.logger.Error(err)
       return c.NoContent(http.StatusInternalServerError)
    }
    ```
 
-5. Test the services using the activities in Step 5 of this exercise.
+Finally, test the services using the activities in Step 5 of this exercise.
 
 ## Next assignment
 
 Make sure you stop all running processes and close all the terminal windows in VS Code before proceeding to the next assignment.
 
-Go to [assignment 4](../Assignment04/README.md).
+Go to [assignment 4](../Assignment04/step-by-step-golang.md).

@@ -1,11 +1,12 @@
 package http
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	dapr "github.com/dapr/go-sdk/client"
 
 	"dapr-workshop-go/pkg/config"
 	"dapr-workshop-go/pkg/logger"
@@ -107,22 +108,17 @@ func (h *trafficControlHandlers) VehicleExit() echo.HandlerFunc {
 				Timestamp:      message.Timestamp,
 			}
 
-			data, err := json.Marshal(speedingViolation)
+			client, err := dapr.NewClient()
 			if err != nil {
 				h.logger.Error(err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
-			resp, err := http.Post(
-				"http://localhost:3600/v1.0/publish/pubsub/speedingviolations", 
-				"application/json", 
-				bytes.NewBuffer(data))
 
-			if err != nil {
-				h.logger.DPanic(err)
-
+			ctx := context.Background()
+			if err := client.PublishEvent(ctx, "pubsub", "speedingviolations", speedingViolation); err != nil {
+				h.logger.Error(err)
 				return c.NoContent(http.StatusInternalServerError)
 			}
-			defer resp.Body.Close()
 		}
 
 		return c.NoContent(http.StatusOK)
