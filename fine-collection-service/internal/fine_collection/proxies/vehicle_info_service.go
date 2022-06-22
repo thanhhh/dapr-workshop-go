@@ -21,7 +21,7 @@ func NewProxy(logger logger.Logger) fc.VehicleInfoService {
 }
 
 func (p *defaultVehicleInfoService) GetVehicleInfo(
-	ctx context.Context, vehicleId string) (models.VehicleInfo, error) {
+	ctx context.Context, licenseNumber string) (models.VehicleInfo, error) {
 	vehicleInfo := models.VehicleInfo{}
 
 	daprClient, err := dapr.NewClient()
@@ -30,7 +30,7 @@ func (p *defaultVehicleInfoService) GetVehicleInfo(
 		return vehicleInfo, fmt.Errorf("create dapr client error %v", err)
 	}
 
-	methodName := fmt.Sprintf("vehicleinfo/%s", vehicleId)
+	methodName := fmt.Sprintf("vehicleinfo/%s", licenseNumber)
 	resp, err := daprClient.InvokeMethod(ctx, "vehicleregistrationservice", methodName, "get")
 
 	if err != nil {
