@@ -11,7 +11,7 @@ To complete this assignment, you must reach the following goals:
 
 As a reminder, this is how the services will interact with each other:
 
-<img src="../img/services.png" style="zoom: 67%;" />
+<img src="img/services.png" style="zoom: 67%;" />
 
 ## Step 1. Run the VehicleRegistration service
 
@@ -35,7 +35,7 @@ Client extension VS Code):
 
 2. Click on `Send request` in the file to send a request to the API:
 
-   ![REST client](../img/rest-client.png)
+   ![REST client](img/rest-client.png)
 
 3. The response of the request will be shown in a separate window on the right. It should be a response with HTTP
    status code `200 OK` and the body should contain some random vehicle and owner-information:
@@ -143,4 +143,4 @@ Make sure you stop all running processes and close all the terminal windows in V
 assignment. Stopping a service or the simulation is done by pressing `Ctrl-C` in the terminal window. To close the
 terminal window, enter the `exit` command.
 
-Go to [assignment 2](../Assignment02/README.md).
+Go to [assignment 2](../Assignment02/step-by-step-golang.md).
