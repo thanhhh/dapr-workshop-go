@@ -20,4 +20,4 @@ logger:
   Level: debug
 
 licenseKey:
-  FineCalculatorLicenseKey: HX783-K2L7V-CRJ4A-5PN1G
+  FineCalculatorLicenseKey: READ_FROM_DAPR_SECRETS

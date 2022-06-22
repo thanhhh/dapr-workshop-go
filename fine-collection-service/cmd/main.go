@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
+	dapr "github.com/dapr/go-sdk/client"
 	echo "github.com/labstack/echo/v4"
 
 	"dapr-workshop-go/pkg/config"
@@ -39,17 +41,24 @@ func main() {
 		cfg.Server.Mode,
 		cfg.Server.SSL)
 
+	client, err := dapr.NewClient()
+	if err != nil {
+		panic(err)
+	}
+
+	opt := map[string]string{
+    "version": "1",
+	}
+	ctx := context.Background()
+	secret, err := client.GetSecret(ctx, "trafficcontrol-secrets", "finecalculator.licensekey", opt)
+
+	if err != nil {
+		panic(err)
+	}
+	
+	cfg.LicenseKey.FineCalculatorLicenseKey = secret["finecalculator.licensekey"]
+
 	e := echo.New()
-	// e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
-	// 	data := make(map[string]interface{})
-	// 	err := json.Unmarshal(resBody, &data)
-
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	}
-
-	// 	log.Println(data)
-	// }))
 
 	serverHandlers := fcServer.NewServerHandler(e, cfg, appLogger)
 
