@@ -61,10 +61,10 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 		if err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, errors.NewBadRequestError(
-				fmt.Sprintf("Calculate find error for vehicle id %s", speedingViolation.VehicleId)))
+				fmt.Sprintf("Calculate fine error for vehicle id %s", speedingViolation.VehicleId)))
 		}
 
-		if err := utils.ValidateStruct(c.Request().Context(), speedingViolation); err != nil {
+		if err := utils.ValidateStruct(ctx, speedingViolation); err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, err)
 		}
