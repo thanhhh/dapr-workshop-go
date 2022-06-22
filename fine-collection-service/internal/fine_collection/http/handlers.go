@@ -42,8 +42,6 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var err error
 
-		ctx := c.Request().Context()
-
 		speedingViolation := &models.SpeedingViolation{}
 
 		if err := c.Bind(speedingViolation); err != nil {
@@ -51,6 +49,7 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 
+    ctx := c.Request().Context()
 		if err := utils.ValidateStruct(ctx, speedingViolation); err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, err)
@@ -63,12 +62,7 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 		if err != nil {
 			h.logger.Error(err)
 			return c.JSON(http.StatusBadRequest, errors.NewBadRequestError(
-				fmt.Sprintf("Calculate find error for vehicle id %s", speedingViolation.VehicleId)))
-		}
-
-		if err := utils.ValidateStruct(c.Request().Context(), speedingViolation); err != nil {
-			h.logger.Error(err)
-			return c.JSON(http.StatusBadRequest, err)
+				fmt.Sprintf("Calculate fine error for vehicle id %s", speedingViolation.VehicleId)))
 		}
 
 		// get owner info
