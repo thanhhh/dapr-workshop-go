@@ -72,13 +72,14 @@ func (h *fineCollectionHandlers) CollectFine() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 
-		fine, _ := h.calculator.CalculateFine(
+		fine, err := h.calculator.CalculateFine(
 			h.cfg.LicenseKey.FineCalculatorLicenseKey,
 			speedingViolation.ViolationInKmh)
 
-		if err := utils.ValidateStruct(ctx, speedingViolation); err != nil {
+		if err != nil {
 			h.logger.Error(err)
-			return c.JSON(http.StatusBadRequest, err)
+			return c.JSON(http.StatusBadRequest, errors.NewBadRequestError(
+				fmt.Sprintf("Calculate fine error for vehicle id %s", speedingViolation.VehicleId)))
 		}
 
 		// get owner info
