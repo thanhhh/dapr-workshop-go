@@ -368,4 +368,4 @@ Now you're ready to test the application. Just repeat steps 2a and 2b.
 
 Make sure you stop all running processes and close all the terminal windows in VS Code before proceeding to the next assignment.
 
-Go to [assignment 5](../Assignment05/README.md).
+Go to [assignment 5](../Assignment05/step-by-step-golang.md).
